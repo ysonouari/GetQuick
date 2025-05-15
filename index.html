@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Formulaire Devis / Facture avec Surface</title>
+<title>Formulaire Devis / Facture avec Surface, Logo, TVA</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -61,9 +61,16 @@
     padding: 8px 15px;
     cursor: pointer;
   }
-  #total-general {
+  #total-general, #tva-montant, #total-ttc {
     font-weight: bold;
     font-size: 1.2em;
+    margin-right: 15px;
+  }
+  #logo-preview {
+    max-height: 80px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    display: block;
   }
 </style>
 </head>
@@ -86,6 +93,18 @@
   <div>
     <label for="date-document">Date :</label>
     <input type="date" id="date-document" />
+  </div>
+</div>
+
+<div class="flex-row">
+  <div>
+    <label for="logo-upload">Logo :</label>
+    <input type="file" id="logo-upload" accept="image/*" />
+    <img id="logo-preview" alt="Aperçu logo" />
+  </div>
+  <div>
+    <label for="tva">TVA (%) :</label>
+    <input type="number" id="tva" value="20" min="0" step="0.01" />
   </div>
 </div>
 
@@ -128,9 +147,14 @@
 
 <button id="btn-ajouter">Ajouter une ligne</button>
 
-<p>Total général : <span id="total-general">36.00</span> dh</p>
+<div style="margin-top:10px;">
+  <span id="total-general">36.00</span> dh (HT) &nbsp;&nbsp;
+  <span id="tva-montant">7.20</span> dh (TVA) &nbsp;&nbsp;
+  <span id="total-ttc">43.20</span> dh (TTC)
+</div>
 
 <button id="btn-generate-pdf">Générer PDF</button>
+<button id="btn-nouvelle-facture" style="background:#f44336; color:white;">Nouvelle facture</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -140,6 +164,16 @@
 
   const selectType = document.getElementById('type-document');
   const titrePage = document.getElementById('titre-page');
+  const tbodyLignes = document.getElementById('tbody-lignes');
+  const totalGeneralSpan = document.getElementById('total-general');
+  const tvaInput = document.getElementById('tva');
+  const tvaMontantSpan = document.getElementById('tva-montant');
+  const totalTTCSpan = document.getElementById('total-ttc');
+  const logoUpload = document.getElementById('logo-upload');
+  const logoPreview = document.getElementById('logo-preview');
+
+  let logoDataURL = null;
+
   selectType.addEventListener('change', () => {
     titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
   });
@@ -171,7 +205,14 @@
       const totalLigne = parseFloat(ligne.querySelector('.total-ligne').value) || 0;
       totalGeneral += totalLigne;
     });
-    document.getElementById('total-general').textContent = totalGeneral.toFixed(2);
+    totalGeneralSpan.textContent = totalGeneral.toFixed(2);
+
+    const tvaPourcent = parseFloat(tvaInput.value) || 0;
+    const tvaMontant = totalGeneral * (tvaPourcent / 100);
+    tvaMontantSpan.textContent = tvaMontant.toFixed(2);
+
+    const totalTTC = totalGeneral + tvaMontant;
+    totalTTCSpan.textContent = totalTTC.toFixed(2);
   }
 
   function miseAJourComplete() {
@@ -182,7 +223,6 @@
   }
 
   function ajouterLigne() {
-    const tbody = document.getElementById('tbody-lignes');
     const nouvelleLigne = document.createElement('tr');
     nouvelleLigne.classList.add('ligne-article');
     nouvelleLigne.innerHTML = `
@@ -195,7 +235,7 @@
       <td><input type="number" class="total-ligne" value="0.00" readonly /></td>
       <td><button class="btn-suppr">Supprimer</button></td>
     `;
-    tbody.appendChild(nouvelleLigne);
+    tbodyLignes.appendChild(nouvelleLigne);
   }
 
   function supprimerLigne(button) {
@@ -204,17 +244,33 @@
     miseAJourComplete();
   }
 
+  // Gestion upload logo
+  logoUpload.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        logoDataURL = evt.target.result;
+        logoPreview.src = logoDataURL;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      logoPreview.src = "";
+      logoDataURL = null;
+    }
+  });
+
   document.getElementById('btn-ajouter').addEventListener('click', () => {
     ajouterLigne();
   });
 
-  document.getElementById('tbody-lignes').addEventListener('click', (e) => {
+  tbodyLignes.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-suppr')) {
       supprimerLigne(e.target);
     }
   });
 
-  document.getElementById('tbody-lignes').addEventListener('input', (e) => {
+  tbodyLignes.addEventListener('input', (e) => {
     const target = e.target;
     if (['prix-unitaire', 'quantite', 'largeur', 'hauteur'].some(c => target.classList.contains(c))) {
       const ligne = target.closest('tr');
@@ -223,35 +279,99 @@
     }
   });
 
+  tvaInput.addEventListener('input', () => {
+    // recalcul total général et TTC dès que TVA change
+    mettreAJourTotalGeneral();
+  });
+
+  // Bouton Nouvelle Facture (reset form)
+  document.getElementById('btn-nouvelle-facture').addEventListener('click', () => {
+    // Reset champs
+    selectType.value = "devis";
+    titrePage.textContent = "Formulaire Devis";
+    document.getElementById('invoice-number').value = "";
+    document.getElementById('date-document').value = "";
+    document.getElementById('info-client').value = "";
+    document.getElementById('info-vendeur').value = "";
+    tvaInput.value = 20;
+    logoUpload.value = "";
+    logoPreview.src = "";
+    logoDataURL = null;
+
+    // Supprimer toutes les lignes sauf 1
+    tbodyLignes.innerHTML = "";
+    ajouterLigne();
+
+    miseAJourComplete();
+  });
+
   document.getElementById('btn-generate-pdf').addEventListener('click', () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
     const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
     const invoiceNum = document.getElementById('invoice-number').value || "SansNum";
     const dateDoc = document.getElementById('date-document').value || "SansDate";
     const infoClient = document.getElementById('info-client').value || "";
     const infoVendeur = document.getElementById('info-vendeur').value || "";
+    const tvaPourcent = parseFloat(tvaInput.value) || 0;
+    const totalHT = parseFloat(totalGeneralSpan.textContent) || 0;
+    const tvaMontant = totalHT * (tvaPourcent / 100);
+    const totalTTC = totalHT + tvaMontant;
 
+    let yPos = 20;
+
+    // Logo si présent
+    if (logoDataURL) {
+      // Limiter taille logo
+      const imgProps = doc.getImageProperties(logoDataURL);
+      const maxWidth = 50;
+      const maxHeight = 30;
+      let imgWidth = imgProps.width;
+      let imgHeight = imgProps.height;
+
+      // Ajuster les dimensions tout en gardant ratio
+      if (imgWidth > maxWidth) {
+        const ratio = maxWidth / imgWidth;
+        imgWidth = maxWidth;
+        imgHeight = imgHeight * ratio;
+      }
+      if (imgHeight > maxHeight) {
+        const ratio = maxHeight / imgHeight;
+        imgHeight = maxHeight;
+        imgWidth = imgWidth * ratio;
+      }
+
+      doc.addImage(logoDataURL, 'PNG', 14, yPos, imgWidth, imgHeight);
+      yPos += imgHeight + 5;
+    }
+
+    // Titre centré
     doc.setFontSize(30);
-const pageWidth = doc.internal.pageSize.getWidth();
-const text = typeDoc.toUpperCase();
-const textWidth = doc.getTextWidth(text);
-const x = (pageWidth - textWidth) / 2;
-doc.text(text, x, 20);
-
-
-    doc.setFontSize(12);
-    doc.text(`Numéro : ${invoiceNum}`, 14, 30);
-    doc.text(`Date : ${dateDoc}`, 14, 38);
-
-    doc.text("Informations Vendeur :", 14, 50);
-    doc.setFontSize(10);
-    doc.text(infoVendeur.split("\n"), 14, 56);
+    const text = typeDoc.toUpperCase();
+    const textWidth = doc.getTextWidth(text);
+    const x = (pageWidth - textWidth) / 2;
+    doc.text(text, x, yPos);
+    yPos += 15;
 
     doc.setFontSize(12);
-    doc.text("Informations Client :", 14, 80);
+    doc.text(`Numéro : ${invoiceNum}`, 14, yPos);
+    yPos += 8;
+    doc.text(`Date : ${dateDoc}`, 14, yPos);
+    yPos += 10;
+
+    doc.text("Informations Vendeur :", 14, yPos);
+    yPos += 6;
     doc.setFontSize(10);
-    doc.text(infoClient.split("\n"), 14, 86);
+    doc.text(infoVendeur.split("\n"), 14, yPos);
+    yPos += (infoVendeur.split("\n").length * 6) + 4;
+
+    doc.setFontSize(12);
+    doc.text("Informations Client :", 14, yPos);
+    yPos += 6;
+    doc.setFontSize(10);
+    doc.text(infoClient.split("\n"), 14, yPos);
+    yPos += (infoClient.split("\n").length * 6) + 6;
 
     // Préparer les données pour autoTable
     const rows = [];
@@ -268,21 +388,24 @@ doc.text(text, x, 20);
     });
 
     doc.autoTable({
-      startY: 95,
+      startY: yPos,
       head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
       body: rows,
       theme: 'grid',
     });
 
-    const finalY = doc.lastAutoTable.finalY || 95;
+    const finalY = doc.lastAutoTable.finalY || yPos;
 
-    const totalGeneral = document.getElementById('total-general').textContent;
+    // Totaux HT, TVA, TTC
     doc.setFontSize(12);
-    doc.text(`Total général : ${totalGeneral} dh`, 14, finalY + 10);
+    doc.text(`Total HT : ${totalHT.toFixed(2)} dh`, 14, finalY + 10);
+    doc.text(`TVA (${tvaPourcent.toFixed(2)}%) : ${tvaMontant.toFixed(2)} dh`, 14, finalY + 18);
+    doc.text(`Total TTC : ${totalTTC.toFixed(2)} dh`, 14, finalY + 26);
 
     doc.save(`${typeDoc}_${invoiceNum}.pdf`);
   });
 
+  // Initialisation
   miseAJourComplete();
 </script>
 
