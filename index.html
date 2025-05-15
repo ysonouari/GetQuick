@@ -350,8 +350,13 @@ footer {
         <button type="submit" id="submitBtn">Générer Facture</button>
         <button type="button" id="btnTelecharger" disabled>📥 Télécharger PDF</button>
         <button type="button" onclick="reinitialiserFormulaire()">🆕 Nouvelle facture</button>
-        <label for="logoUpload">📷 Ajouter un logo</label>
+        <div class="button-group">
+  <button type="button" onclick="afficherChampLogo()">📷 Ajouter un logo</button>
+</div>
+<div id="logoUploadContainer" style="display: none; margin-top: 10px;">
   <input type="file" id="logoUpload" accept="image/*" onchange="chargerLogo(event)" />
+</div>
+
       </div>
     </form>
     <div class="button-group">
@@ -682,6 +687,11 @@ function deconnexion() {
       ajouterLigne();
       mettreAJourTotaux();
     }
+    // 👉 Fonction pour afficher/cacher le champ d'import du logo
+function afficherChampLogo() {
+  const container = document.getElementById('logoUploadContainer');
+  container.style.display = container.style.display === 'none' ? 'block' : 'none';
+}
     mettreAJourTotaux();
     
   </script>
