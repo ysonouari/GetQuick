@@ -247,7 +247,7 @@
 <body>
 
   <!-- Formulaire de Connexion -->
-  <div class="login-container">
+  <div class="login-container" id="login-container">
     <h2>Connexion</h2>
     <form id="login-form">
       <label for="username">Nom d'utilisateur</label>
@@ -261,11 +261,11 @@
         <label for="remember-me">Souviens-toi de moi</label>
       </div>
 
-      <button type="submit">Se connecter</button>
+      <button type="submit" id="login-btn">Se connecter</button>
     </form>
   </div>
 
-  <div class="container">
+  <div class="container" id="invoice-container" style="display: none;">
     <h1 id="titre-page">Formulaire Devis</h1>
 
     <div class="flex-row">
@@ -358,6 +358,10 @@
   <script>
     const { jsPDF } = window.jspdf;
 
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const invoiceContainer = document.getElementById('invoice-container');
+    const loginContainer = document.getElementById('login-container');
     const selectType = document.getElementById('type-document');
     const titrePage = document.getElementById('titre-page');
     const tbodyLignes = document.getElementById('tbody-lignes');
@@ -369,6 +373,19 @@
     const logoPreview = document.getElementById('logo-preview');
 
     let logoDataURL = null;
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      if (username === "demo" && password === "3388") {
+        loginContainer.style.display = 'none';
+        invoiceContainer.style.display = 'block';
+      } else {
+        alert("Nom d'utilisateur ou mot de passe incorrect");
+      }
+    });
 
     selectType.addEventListener('change', () => {
       titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
