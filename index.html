@@ -288,16 +288,6 @@ footer {
       border: 2px solid var(--primary-color);
     }
 
-#logoUploadContainer input[type="file"] {
-      padding: var(--input-padding);
-      border-radius: var(--border-radius);
-      border: 1px solid #D1D5DB;
-      font-size: 1rem;
-      width: 100%;
-      background-color: #fff;
-      box-sizing: border-box;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -360,15 +350,8 @@ footer {
         <button type="submit" id="submitBtn">Générer Facture</button>
         <button type="button" id="btnTelecharger" disabled>📥 Télécharger PDF</button>
         <button type="button" onclick="reinitialiserFormulaire()">🆕 Nouvelle facture</button>
-        <div class="button-group">
-  <div class="button-group">
-  <button type="button" onclick="afficherChampLogo()">📷 Ajouter un logo</button>
-</div>
-
-<div id="logoUploadContainer" style="display: none; margin-top: 10px;">
+        <label for="logoUpload">📷 Ajouter un logo</label>
   <input type="file" id="logoUpload" accept="image/*" onchange="chargerLogo(event)" />
-</div>
-
       </div>
     </form>
     <div class="button-group">
@@ -376,8 +359,8 @@ footer {
     </div>
     <div class="entreprise-info" id="entrepriseInfoForm">
       <h3>Information</h3>
-      <label for="nomEntreprise">Nom de l'Entreprise</label>
-      <input type="text" id="nomEntreprise" />
+      <label for="nomEntreprise">Informations sur le vendeur</label>
+      <textarea id="nomEntreprise" rows="4" placeholder="Saisir les informations du vendeur..."></textarea>
       <button type="button" onclick="enregistrerEntreprise()">Enregistrer</button>
     </div>
     <div class="loader" id="loader">Veuillez patienter, la génération de la facture est en cours...</div>
@@ -421,8 +404,8 @@ function verifierLogin() {
   const rememberMe = document.getElementById('rememberMe').checked;
 
   const identifiantsValides = {
-    'test': '123456',
-    'user1': 'test123'
+    'demo': '3388',
+    'mounir': '3388'
   };
 
   // Si les identifiants sont valides
@@ -699,11 +682,6 @@ function deconnexion() {
       ajouterLigne();
       mettreAJourTotaux();
     }
-    // 👉 Fonction pour afficher/cacher le champ d'import du logo
-function afficherChampLogo() {
-  const container = document.getElementById('logoUploadContainer');
-  container.style.display = container.style.display === 'none' ? 'block' : 'none';
-}
     mettreAJourTotaux();
     
   </script>
