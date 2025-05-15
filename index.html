@@ -38,7 +38,6 @@
       width: 100%;
       max-width: 500px;
       margin: 20px auto;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .login-form label {
@@ -50,40 +49,26 @@
 
     .login-form input[type="text"], .login-form input[type="password"] {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
       border: 1px solid #ccc;
       font-size: 1em;
-      background-color: #f9f9f9;
     }
 
     .login-form button {
       background-color: #2980b9;
       color: white;
-      padding: 12px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
       width: 100%;
-      font-size: 1.1em;
     }
 
     .login-form button:hover {
       background-color: #3498db;
-    }
-
-    .login-form .forgot-password {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 0.9em;
-      color: #007BFF;
-      cursor: pointer;
-    }
-
-    .login-form .forgot-password:hover {
-      text-decoration: underline;
     }
 
     /* Sélecteurs pour les labels et inputs */
@@ -279,12 +264,11 @@
     <!-- Formulaire de connexion -->
     <div class="login-form">
       <label for="user-id">Identifiant :</label>
-      <input type="text" id="user-id" placeholder="Entrez votre identifiant" autocomplete="off" />
+      <input type="text" id="user-id" placeholder="Entrez votre identifiant" />
       <label for="password">Mot de passe :</label>
-      <input type="password" id="password" placeholder="Entrez votre mot de passe" autocomplete="off" />
+      <input type="password" id="password" placeholder="Entrez votre mot de passe" />
       <button id="btn-login">Se connecter</button>
       <div id="login-error" style="color: red; display: none;">Identifiant ou mot de passe incorrect.</div>
-      <div class="forgot-password">Mot de passe oublié ?</div>
     </div>
 
     <!-- Formulaire de création de devis (initialement caché) -->
