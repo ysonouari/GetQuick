@@ -442,10 +442,10 @@ window.onload = function() {
     document.getElementById('username').value = savedUsername;
     document.getElementById('password').value = savedPassword;
     document.getElementById('rememberMe').checked = true;
-    document.getElementById('sheetLink').value = localStorage.getItem('sheetLink') || '';
   }
     protegerAcces(); // <--- ajoute ceci ici
-  
+      document.getElementById('sheetLink').value = localStorage.getItem('sheetLink') || '';
+
 };
 function chargerLogo(event) {
   const file = event.target.files[0];
