@@ -287,6 +287,41 @@ footer {
       outline: none;
       border: 2px solid var(--primary-color);
     }
+/* Bouton Ajouter un logo */
+.btn-logo {
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px; /* Espacement sous le bouton */
+  display: inline-block;
+}
+
+/* Prévisualisation du logo */
+#logoPreview img {
+  max-width: 200px; /* Limite la taille de l'image */
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Pour les autres boutons */
+.button-group button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px; /* Espacement entre les boutons */
+}
+
+.entreprise-info {
+  margin-top: 20px;
+}
 
   </style>
 </head>
@@ -346,25 +381,38 @@ footer {
       </table>
       <button type="button" onclick="ajouterLigne()">➕ Ajouter une ligne</button>
       <div id="total"></div>
-      <div class="button-group">
-        <button type="submit" id="submitBtn">Générer Facture</button>
-        <button type="button" id="btnTelecharger" disabled>📥 Télécharger PDF</button>
-        <button type="button" onclick="reinitialiserFormulaire()">🆕 Nouvelle facture</button>
-        <label for="logoUpload">📷 Ajouter un logo</label>
-  <input type="file" id="logoUpload" accept="image/*" onchange="chargerLogo(event)" />
-      </div>
-    </form>
-    <div class="button-group">
-      <button type="button" onclick="afficherFormEntreprise()">🖋️ Informations Entreprise</button>
-    </div>
-    <div class="entreprise-info" id="entrepriseInfoForm">
-      <h3>Information</h3>
-      <label for="nomEntreprise">Informations sur le vendeur</label>
-      <textarea id="nomEntreprise" rows="4" placeholder="Saisir les informations du vendeur..."></textarea>
-      <button type="button" onclick="enregistrerEntreprise()">Enregistrer</button>
-    </div>
-    <div class="loader" id="loader">Veuillez patienter, la génération de la facture est en cours...</div>
+      
+      <form>
+  <div class="button-group">
+    <button type="submit" id="submitBtn">Générer Facture</button>
+    <button type="button" id="btnTelecharger" disabled>📥 Télécharger PDF</button>
+    <button type="button" onclick="reinitialiserFormulaire()">🆕 Nouvelle facture</button>
+
+    <!-- Nouveau bouton Ajouter un logo -->
+    <label for="logoUpload" class="btn-logo">📷 Ajouter un logo</label>
+    <input type="file" id="logoUpload" accept="image/*" onchange="chargerLogo(event)" style="display: none" />
+    
+    <!-- Prévisualisation du logo téléchargé -->
+    <div id="logoPreview"></div>
   </div>
+
+  <!-- Bouton Informations Entreprise -->
+  <div class="button-group">
+    <button type="button" onclick="afficherFormEntreprise()">🖋️ Informations Entreprise</button>
+  </div>
+
+  <!-- Formulaire Informations Entreprise -->
+  <div class="entreprise-info" id="entrepriseInfoForm">
+    <h3>Information</h3>
+    <label for="nomEntreprise">Informations sur le vendeur</label>
+    <textarea id="nomEntreprise" rows="4" placeholder="Saisir les informations du vendeur..."></textarea>
+    <button type="button" onclick="enregistrerEntreprise()">Enregistrer</button>
+  </div>
+
+  <!-- Loader (si besoin) -->
+  <div class="loader" id="loader">Veuillez patienter, la génération de la facture est en cours...</div>
+</form>
+
 
 <!-- Copyright Section -->
   <div class="copyright">
@@ -671,6 +719,25 @@ function deconnexion() {
   localStorage.removeItem('username');
   localStorage.removeItem('password');
   location.reload();
+}
+
+    // Fonction pour charger et afficher l'image du logo
+function chargerLogo(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      // Créer un élément image et l'ajouter à l'aperçu
+      const imgElement = document.createElement('img');
+      imgElement.src = e.target.result;
+
+      // Ajouter l'image au div #logoPreview
+      const previewDiv = document.getElementById('logoPreview');
+      previewDiv.innerHTML = ''; // Réinitialiser le contenu précédent
+      previewDiv.appendChild(imgElement); // Ajouter l'image à l'aperçu
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
     function reinitialiserFormulaire() {
