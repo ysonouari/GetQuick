@@ -227,57 +227,59 @@
     const doc = new jsPDF();
 
     const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
-    const invoiceNum = document.getElementById('invoice-number').value || 'N/A';
-    const dateDoc = document.getElementById('date-document').value || 'N/A';
-    const infoClient = document.getElementById('info-client').value || '';
-    const infoVendeur = document.getElementById('info-vendeur').value || '';
+    const invoiceNum = document.getElementById('invoice-number').value || "SansNum";
+    const dateDoc = document.getElementById('date-document').value || "SansDate";
+    const infoClient = document.getElementById('info-client').value || "";
+    const infoVendeur = document.getElementById('info-vendeur').value || "";
 
-    doc.setFontSize(16);
-    doc.text(typeDoc, 105, 15, null, null, 'center');
-
-    doc.setFontSize(12);
-    doc.text(`Numéro : ${invoiceNum}`, 14, 25);
-    doc.text(`Date : ${dateDoc}`, 150, 25);
-
-    doc.text("Vendeur :", 14, 35);
-    doc.setFontSize(10);
-    doc.text(doc.splitTextToSize(infoVendeur, 80), 14, 40);
+    doc.setFontSize(18);
+    doc.text(typeDoc.toUpperCase(), 14, 20);
 
     doc.setFontSize(12);
-    doc.text("Client :", 130, 35);
-    doc.setFontSize(10);
-    doc.text(doc.splitTextToSize(infoClient, 80), 130, 40);
+    doc.text(`Numéro : ${invoiceNum}`, 14, 30);
+    doc.text(`Date : ${dateDoc}`, 14, 38);
 
+    doc.text("Informations Vendeur :", 14, 50);
+    doc.setFontSize(10);
+    doc.text(infoVendeur.split("\n"), 14, 56);
+
+    doc.setFontSize(12);
+    doc.text("Informations Client :", 14, 80);
+    doc.setFontSize(10);
+    doc.text(infoClient.split("\n"), 14, 86);
+
+    // Préparer les données pour autoTable
     const rows = [];
     document.querySelectorAll('.ligne-article').forEach(ligne => {
-      rows.push([
-        ligne.querySelector('.designation').value,
-        ligne.querySelector('.prix-unitaire').value,
-        ligne.querySelector('.quantite').value,
-        ligne.querySelector('.largeur').value,
-        ligne.querySelector('.hauteur').value,
-        ligne.querySelector('.surface').value,
-        ligne.querySelector('.total-ligne').value,
-      ]);
+      const des = ligne.querySelector('.designation').value || "";
+      const pu = ligne.querySelector('.prix-unitaire').value || "0";
+      const qt = ligne.querySelector('.quantite').value || "0";
+      const larg = ligne.querySelector('.largeur').value || "0";
+      const haut = ligne.querySelector('.hauteur').value || "0";
+      const surf = ligne.querySelector('.surface').value || "0";
+      const total = ligne.querySelector('.total-ligne').value || "0";
+
+      rows.push([des, pu + " dh", qt, larg, haut, surf, total + " dh"]);
     });
 
     doc.autoTable({
-      start
-Y: 80,
-head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
-body: rows,
-theme: 'grid',
-});
-const finalY = doc.lastAutoTable.finalY || 80;
+      startY: 95,
+      head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
+      body: rows,
+      theme: 'grid',
+    });
 
-const totalGeneral = document.getElementById('total-general').textContent;
-doc.setFontSize(12);
-doc.text(`Total général : ${totalGeneral} dh`, 14, finalY + 10);
+    const finalY = doc.lastAutoTable.finalY || 95;
 
-doc.save(`${typeDoc}_${invoiceNum}.pdf`);
-});
+    const totalGeneral = document.getElementById('total-general').textContent;
+    doc.setFontSize(12);
+    doc.text(`Total général : ${totalGeneral} dh`, 14, finalY + 10);
 
-miseAJourComplete();
+    doc.save(`${typeDoc}_${invoiceNum}.pdf`);
+  });
+
+  miseAJourComplete();
 </script>
 
-</body> </html> ```
+</body>
+</html>
