@@ -58,7 +58,7 @@
     }
 
     .flex-row > div {
-      flex: 1;
+      flex: 1 1 300px;
     }
 
     .section-info {
@@ -107,6 +107,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      width: 100%;
     }
 
     button:hover {
@@ -151,6 +152,64 @@
       display: flex;
       gap: 15px;
       justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .flex-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      table, .total-section {
+        font-size: 0.9em;
+      }
+
+      button {
+        width: 48%;
+        margin-bottom: 10px;
+      }
+
+      .btn-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5em;
+      }
+
+      input[type="text"], input[type="date"], input[type="number"], textarea, select {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+
+      .logo-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logo-section input {
+        width: 100%;
+      }
+
+      .total-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
     }
   </style>
 </head>
