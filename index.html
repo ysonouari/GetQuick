@@ -251,10 +251,10 @@
     <h2>Connexion</h2>
     <form id="login-form">
       <label for="username">Nom d'utilisateur</label>
-      <input type="text" id="username" placeholder="Nom d'utilisateur" value="demo" />
+<input type="text" id="username" placeholder="Nom d'utilisateur" />
 
       <label for="password">Mot de passe</label>
-      <input type="password" id="password" placeholder="Mot de passe" value="3388" />
+<input type="password" id="password" placeholder="Mot de passe" />
 
       <div class="checkbox-container">
         <input type="checkbox" id="remember-me" />
@@ -374,18 +374,42 @@
 
     let logoDataURL = null;
 
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+   
+  const { jsPDF } = window.jspdf;
 
-      if (username === "demo" && password === "3388") {
-        loginContainer.style.display = 'none';
-        invoiceContainer.style.display = 'block';
-      } else {
-        alert("Nom d'utilisateur ou mot de passe incorrect");
-      }
-    });
+  const loginForm = document.getElementById('login-form');
+  const loginBtn = document.getElementById('login-btn');
+  const invoiceContainer = document.getElementById('invoice-container');
+  const loginContainer = document.getElementById('login-container');
+  const selectType = document.getElementById('type-document');
+  const titrePage = document.getElementById('titre-page');
+  const tbodyLignes = document.getElementById('tbody-lignes');
+  const totalGeneralSpan = document.getElementById('total-general');
+  const tvaInput = document.getElementById('tva');
+  const tvaMontantSpan = document.getElementById('tva-montant');
+  const totalTTCSpan = document.getElementById('total-ttc');
+  const logoUpload = document.getElementById('logo-upload');
+  const logoPreview = document.getElementById('logo-preview');
+
+  // Définir les utilisateurs et leurs mots de passe
+  const users = {
+    "user": "3388",
+    "user2": "password2"
+  };
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (users[username] === password) {
+      loginContainer.style.display = 'none';
+      invoiceContainer.style.display = 'block';
+    } else {
+      alert("Nom d'utilisateur ou mot de passe incorrect");
+    }
+  });
+
 
     selectType.addEventListener('change', () => {
       titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
