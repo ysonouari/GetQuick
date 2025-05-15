@@ -232,8 +232,13 @@
     const infoClient = document.getElementById('info-client').value || "";
     const infoVendeur = document.getElementById('info-vendeur').value || "";
 
-    doc.setFontSize(18);
-    doc.text(typeDoc.toUpperCase(), 14, 20);
+    doc.setFontSize(30);
+const pageWidth = doc.internal.pageSize.getWidth();
+const text = typeDoc.toUpperCase();
+const textWidth = doc.getTextWidth(text);
+const x = (pageWidth - textWidth) / 2;
+doc.text(text, x, 20);
+
 
     doc.setFontSize(12);
     doc.text(`Numéro : ${invoiceNum}`, 14, 30);
