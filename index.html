@@ -333,7 +333,7 @@ footer {
       <label for="lignes"></label>
       <table id="lignesTable">
         <thead>
-          <tr><th>Désignation</th><th>Prix Unitaire</th><th>Quantité</th><th>Largeur (cm)</th><th>Hauteur (cm)</th><th>Surface (m²)</th><th>Actions</th></tr>
+          <tr><th>Désignation</th><th>Prix Unitaire</th><th>Quantité</th><th>Actions</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -341,10 +341,6 @@ footer {
             <td><input type="number" name="prix" step="0.01" required oninput="mettreAJourTotaux()" /></td>
             <td><input type="number" name="quantite" required oninput="mettreAJourTotaux()" /></td>
             <td><button type="button" onclick="supprimerLigne(this)">Supprimer</button></td>
-            <td><input type="number" step="0.01" class="largeur" min="0" /></td>
-<td><input type="number" step="0.01" class="hauteur" min="0" /></td>
-<td class="surface">0</td>
-
           </tr>
         </tbody>
       </table>
@@ -687,28 +683,7 @@ function deconnexion() {
       mettreAJourTotaux();
     }
     mettreAJourTotaux();
- function updateLigne(row) {
-  const prix = parseFloat(row.querySelector('.prix').value) || 0;
-  const qte = parseFloat(row.querySelector('.qte').value) || 0;
-  const largeur = parseFloat(row.querySelector('.largeur').value) || 0;
-  const hauteur = parseFloat(row.querySelector('.hauteur').value) || 0;
-
-  const surface = (largeur * hauteur) / 10000;
-  row.querySelector('.surface').textContent = surface.toFixed(2);
-
-  const total = prix * surface * qte;
-  row.querySelector('.total').textContent = total.toFixed(2);
-
-  updateTotals(); // ta fonction de total global
-}
-
-// Exemple d’ajout d’événements sur tous les inputs pertinents
-document.querySelectorAll('tbody tr').forEach(row => {
-  ['prix', 'qte', 'largeur', 'hauteur'].forEach(cls => {
-    row.querySelector(`.${cls}`).addEventListener('input', () => updateLigne(row));
-  });
-});
-   
+    
   </script>
 </body>
 </html>
