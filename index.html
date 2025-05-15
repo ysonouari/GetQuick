@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Formulaire Devis avec Surface</title>
+<title>Formulaire Devis / Facture avec Surface</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
     font-weight: bold;
     margin-top: 10px;
   }
-  input[type="text"], input[type="date"], input[type="number"], textarea {
+  input[type="text"], input[type="date"], input[type="number"], textarea, select {
     padding: 5px;
     width: 200px;
   }
@@ -69,43 +69,46 @@
 </head>
 <body>
 
-<h1>Formulaire Devis</h1>
+<h1 id="titre-page">Formulaire Devis</h1>
 
-<!-- Section Facture et Date -->
 <div class="flex-row">
   <div>
-    <label for="invoice-number">Numéro Devis :</label>
+    <label for="type-document">Type :</label>
+    <select id="type-document">
+      <option value="devis" selected>Devis</option>
+      <option value="facture">Facture</option>
+    </select>
+  </div>
+  <div>
+    <label for="invoice-number">Numéro :</label>
     <input type="text" id="invoice-number" placeholder="Ex : INV-2025-001" />
   </div>
   <div>
-    <label for="date-devis">Date :</label>
-    <input type="date" id="date-devis" />
+    <label for="date-document">Date :</label>
+    <input type="date" id="date-document" />
   </div>
 </div>
 
-<!-- Infos Client -->
 <div class="section-info">
   <h3>Informations Client</h3>
   <textarea id="info-client" placeholder="Nom, adresse, téléphone..."></textarea>
 </div>
 
-<!-- Infos Vendeur -->
 <div class="section-info">
   <h3>Informations Vendeur</h3>
   <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..."></textarea>
 </div>
 
-<!-- Tableau lignes devis -->
 <table id="table-lignes">
   <thead>
     <tr>
       <th>Désignation</th>
-      <th>Prix Unitaire (€)</th>
+      <th>Prix Unitaire (dh)</th>
       <th>Quantité</th>
       <th>Largeur (cm)</th>
       <th>Hauteur (cm)</th>
       <th>Surface (m²)</th>
-      <th>Total (€)</th>
+      <th>Total (dh)</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -125,14 +128,21 @@
 
 <button id="btn-ajouter">Ajouter une ligne</button>
 
-<p>Total général : <span id="total-general">36.00</span> €</p>
+<p>Total général : <span id="total-general">36.00</span> dh</p>
 
 <button id="btn-generate-pdf">Générer PDF</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 <script>
-  // Récupération de jsPDF
   const { jsPDF } = window.jspdf;
+
+  const selectType = document.getElementById('type-document');
+  const titrePage = document.getElementById('titre-page');
+  selectType.addEventListener('change', () => {
+    titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
+  });
 
   function calculerSurface(largeur, hauteur) {
     return (largeur * hauteur) / 10000;
@@ -213,87 +223,61 @@
     }
   });
 
-  // Génération PDF
   document.getElementById('btn-generate-pdf').addEventListener('click', () => {
     const doc = new jsPDF();
 
-    // Infos facture
+    const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
     const invoiceNum = document.getElementById('invoice-number').value || 'N/A';
-    const dateDevis = document.getElementById('date-devis').value || 'N/A';
+    const dateDoc = document.getElementById('date-document').value || 'N/A';
     const infoClient = document.getElementById('info-client').value || '';
     const infoVendeur = document.getElementById('info-vendeur').value || '';
 
-    // Titre
     doc.setFontSize(16);
-    doc.text("Devis", 105, 15, null, null, 'center');
+    doc.text(typeDoc, 105, 15, null, null, 'center');
 
-    // Numéro et date
     doc.setFontSize(12);
     doc.text(`Numéro : ${invoiceNum}`, 14, 25);
-    doc.text(`Date : ${dateDevis}`, 150, 25);
+    doc.text(`Date : ${dateDoc}`, 150, 25);
 
-    // Infos vendeur à gauche
-    doc.setFontSize(11);
     doc.text("Vendeur :", 14, 35);
     doc.setFontSize(10);
-    const vendeurLines = doc.splitTextToSize(infoVendeur, 90);
-    doc.text(vendeurLines, 14, 40);
-
-    // Infos client à droite
-    doc.setFontSize(11);
-    doc.text("Client :", 110, 35);
-    doc.setFontSize(10);
-    const clientLines = doc.splitTextToSize(infoClient, 90);
-    doc.text(clientLines, 110, 40);
-
-    // Préparation tableau : on crée un tableau simplifié
-    const headers = [["Désignation", "PU (€)", "Qté", "L (cm)", "H (cm)", "Surf (m²)", "Total (€)"]];
-    const rows = [];
-
-    document.querySelectorAll('.ligne-article').forEach(ligne => {
-      const designation = ligne.querySelector('.designation').value || '';
-      const pu = ligne.querySelector('.prix-unitaire').value || '0';
-      const qte = ligne.querySelector('.quantite').value || '0';
-      const l = ligne.querySelector('.largeur').value || '0';
-      const h = ligne.querySelector('.hauteur').value || '0';
-      const surf = ligne.querySelector('.surface').value || '0';
-      const total = ligne.querySelector('.total-ligne').value || '0';
-
-      rows.push([designation, pu, qte, l, h, surf, total]);
-    });
-
-    // On insère le tableau (avec jsPDF autotable)
-    if (!doc.autoTable) {
-      alert("La librairie jsPDF autotable est requise pour le tableau PDF.");
-      return;
-    }
-
-    doc.autoTable({
-      startY: 80,
-      head: headers,
-      body: rows,
-      theme: 'grid',
-      headStyles: {fillColor: [200, 200, 200]},
-      styles: {fontSize: 9}
-    });
-
-    // Total général en bas
-    const finalY = doc.lastAutoTable.finalY || 100;
-    const totalGeneral = document.getElementById('total-general').textContent || '0.00';
+    doc.text(doc.splitTextToSize(infoVendeur, 80), 14, 40);
 
     doc.setFontSize(12);
-    doc.text(`Total général : ${totalGeneral} €`, 150, finalY + 10);
+    doc.text("Client :", 130, 35);
+    doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(infoClient, 80), 130, 40);
 
-    // Enregistrement PDF
-    doc.save(`Devis_${invoiceNum || 'Nouveau'}.pdf`);
-  });
+    const rows = [];
+    document.querySelectorAll('.ligne-article').forEach(ligne => {
+      rows.push([
+        ligne.querySelector('.designation').value,
+        ligne.querySelector('.prix-unitaire').value,
+        ligne.querySelector('.quantite').value,
+        ligne.querySelector('.largeur').value,
+        ligne.querySelector('.hauteur').value,
+        ligne.querySelector('.surface').value,
+        ligne.querySelector('.total-ligne').value,
+      ]);
+    });
 
-  // Initialisation
-  miseAJourComplete();
+    doc.autoTable({
+      start
+Y: 80,
+head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
+body: rows,
+theme: 'grid',
+});
+const finalY = doc.lastAutoTable.finalY || 80;
+
+const totalGeneral = document.getElementById('total-general').textContent;
+doc.setFontSize(12);
+doc.text(`Total général : ${totalGeneral} dh`, 14, finalY + 10);
+
+doc.save(`${typeDoc}_${invoiceNum}.pdf`);
+});
+
+miseAJourComplete();
 </script>
 
-<!-- Ajout jsPDF autotable via CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
-</body>
-</html>
+</body> </html> ```
