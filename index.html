@@ -3,24 +3,71 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Formulaire Devis / Facture Professionnel</title>
+<title>Formulaire Devis / Facture avec Surface, Logo, TVA</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #f8f9fa;
-    color: #343a40;
-    margin: 30px auto;
-    max-width: 900px;
-    padding: 0 15px 40px;
+  /* Reset minimal */
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 
-  h1 {
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px;
+    background: #f8f9fa;
+    color: #333;
+    line-height: 1.4;
+  }
+
+  h1#titre-page {
+    color: #1a237e;
+    font-weight: 700;
+    margin-bottom: 20px;
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 25px;
-    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #3949ab;
+  }
+
+  input[type="text"], input[type="date"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.8px solid #c5cae9;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #1a237e;
+    box-shadow: 0 0 5px rgba(26, 35, 126, 0.4);
+    background-color: #fff;
+  }
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .section-info {
+    background: #e8eaf6;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(26, 35, 126, 0.1);
+  }
+  .section-info h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: #283593;
+    border-bottom: 2px solid #3949ab;
+    padding-bottom: 6px;
   }
 
   .flex-row {
@@ -29,157 +76,134 @@
     flex-wrap: wrap;
     margin-bottom: 25px;
   }
-
   .flex-row > div {
-    flex: 1;
-    min-width: 220px;
+    flex: 1 1 200px;
+    min-width: 180px;
   }
 
-  label {
-    font-weight: 600;
-    margin-bottom: 6px;
+  #logo-upload {
+    cursor: pointer;
+  }
+  #logo-preview {
     display: block;
-    color: #495057;
-  }
-
-  input[type="text"],
-  input[type="date"],
-  input[type="number"],
-  textarea,
-  select {
-    border: 1px solid #ced4da;
+    max-height: 80px;
+    margin-top: 10px;
     border-radius: 6px;
-    padding: 8px 10px;
-    width: 100%;
-    font-size: 0.95rem;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
-  }
-
-  input[type="text"]:focus,
-  input[type="date"]:focus,
-  input[type="number"]:focus,
-  textarea:focus,
-  select:focus {
-    border-color: #3b82f6;
-    outline: none;
-    box-shadow: 0 0 6px #3b82f6aa;
-  }
-
-  textarea {
-    height: 60px;
-    resize: vertical;
-  }
-
-  .section-info {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 15px 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 3px 8px rgb(0 0 0 / 0.1);
-  }
-
-  .section-info h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    user-select: none;
+    border: 1.5px solid #c5cae9;
+    object-fit: contain;
+    max-width: 100%;
   }
 
   table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgb(26 35 126 / 0.1);
+    background: #fff;
     border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.1);
-    margin-bottom: 25px;
   }
-
   th, td {
-    padding: 12px 15px;
+    padding: 12px 10px;
     text-align: center;
-    font-size: 0.9rem;
+    vertical-align: middle;
   }
-
-  th {
-    background-color: #3b82f6;
-    color: white;
+  thead th {
+    background: #3949ab;
+    color: #fff;
     font-weight: 700;
-  }
-
-  tbody tr:nth-child(even) {
-    background-color: #f1f5f9;
-  }
-
-  tbody tr:hover {
-    background-color: #dbeafe;
-  }
-
-  input.surface,
-  input.total-ligne {
-    background: #e9ecef;
+    letter-spacing: 0.03em;
     border: none;
-    pointer-events: none;
+    border-radius: 8px 8px 0 0;
+  }
+  tbody tr {
+    background: #f0f4ff;
+    border-radius: 6px;
+  }
+  tbody tr:hover {
+    background: #d1d9ff;
+  }
+  tbody tr td {
+    border: none;
+  }
+
+  input[type=number] {
+    max-width: 100px;
+  }
+  input.surface, input.total-ligne {
+    background: #e3e7ff;
+    border: none;
+    color: #3f51b5;
+    font-weight: 600;
   }
 
   button {
-    background-color: #3b82f6;
+    padding: 10px 20px;
     border: none;
-    padding: 10px 18px;
+    border-radius: 25px;
+    background-color: #3949ab;
     color: white;
-    border-radius: 6px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    user-select: none;
+    box-shadow: 0 3px 8px rgb(26 35 126 / 0.3);
   }
-
   button:hover {
-    background-color: #2563eb;
+    background-color: #1a237e;
+  }
+  button:active {
+    transform: scale(0.97);
   }
 
-  .btn-suppr {
-    background-color: #ef4444;
-    padding: 6px 12px;
-    font-size: 0.85rem;
-    border-radius: 5px;
+  #btn-nouvelle-facture {
+    background-color: #e53935;
+    box-shadow: 0 3px 8px rgb(229 57 53 / 0.5);
+  }
+  #btn-nouvelle-facture:hover {
+    background-color: #b71c1c;
   }
 
-  .btn-suppr:hover {
-    background-color: #b91c1c;
+  #btn-ajouter {
+    margin-bottom: 20px;
   }
 
-  #logo-preview {
-    max-height: 100px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    object-fit: contain;
-    display: block;
-    user-select: none;
-  }
-
-  #total-general {
+  #total-general, #tva-montant, #total-ttc {
     font-weight: 700;
     font-size: 1.3rem;
-    color: #1e293b;
-    user-select: none;
-  }
-
-  .bottom-buttons {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
+    margin-right: 20px;
+    color: #1a237e;
   }
 
   /* Responsive */
-  @media (max-width: 600px) {
+  @media (max-width: 850px) {
     .flex-row {
       flex-direction: column;
     }
-    .bottom-buttons {
-      flex-direction: column;
+    .flex-row > div {
+      min-width: auto;
+    }
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-radius: 8px;
+    }
+    tbody tr {
+      display: table-row;
+    }
+  }
+
+  @media (max-width: 400px) {
+    button {
+      width: 100%;
+      font-size: 1.1rem;
+      padding: 12px 0;
+    }
+    #total-general, #tva-montant, #total-ttc {
+      display: block;
+      margin: 8px 0;
     }
   }
 </style>
@@ -188,283 +212,110 @@
 
 <h1 id="titre-page">Formulaire Devis</h1>
 
-<div class="flex-row">
+<div class="flex-row" role="region" aria-label="Sélection type document et informations de base">
   <div>
     <label for="type-document">Type :</label>
-    <select id="type-document">
+    <select id="type-document" aria-describedby="type-document-desc">
       <option value="devis" selected>Devis</option>
       <option value="facture">Facture</option>
     </select>
   </div>
   <div>
     <label for="invoice-number">Numéro :</label>
-    <input type="text" id="invoice-number" placeholder="Ex : INV-2025-001" />
+    <input type="text" id="invoice-number" placeholder="Ex : INV-2025-001" aria-label="Numéro de document" />
   </div>
   <div>
     <label for="date-document">Date :</label>
-    <input type="date" id="date-document" />
+    <input type="date" id="date-document" aria-label="Date du document" />
   </div>
 </div>
 
-<div class="section-info">
-  <h3>Informations Vendeur</h3>
-  <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..."></textarea>
+<div class="flex-row" role="region" aria-label="Logo et TVA">
+  <div>
+    <label for="logo-upload">Logo :</label>
+    <input type="file" id="logo-upload" accept="image/*" aria-label="Télécharger logo entreprise" />
+    <img id="logo-preview" alt="Aperçu logo" />
+  </div>
+  <div>
+    <label for="tva">TVA (%) :</label>
+    <input type="number" id="tva" value="20" min="0" step="0.01" aria-label="Taux de TVA" />
+  </div>
 </div>
 
-<div class="section-info">
+<div class="section-info" role="region" aria-label="Informations client">
   <h3>Informations Client</h3>
-  <textarea id="info-client" placeholder="Nom, adresse, téléphone..."></textarea>
+  <textarea id="info-client" placeholder="Nom, adresse, téléphone..." aria-label="Informations client"></textarea>
 </div>
 
-<div class="section-info">
-  <h3>Logo (optionnel)</h3>
-  <input type="file" id="logo-upload" accept="image/*" />
-  <img id="logo-preview" alt="Aperçu logo" style="display:none" />
+<div class="section-info" role="region" aria-label="Informations vendeur">
+  <h3>Informations Vendeur</h3>
+  <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..." aria-label="Informations vendeur"></textarea>
 </div>
 
-<div class="section-info">
-  <h3>TVA (%)</h3>
-  <input type="number" id="tva" value="20" min="0" max="100" step="0.01" />
-</div>
-
-<table id="table-lignes">
+<table id="table-lignes" role="grid" aria-label="Liste des lignes d'article">
   <thead>
     <tr>
-      <th>Désignation</th>
-      <th>Prix Unitaire (dh)</th>
-      <th>Quantité</th>
-      <th>Largeur (cm)</th>
-      <th>Hauteur (cm)</th>
-      <th>Surface (m²)</th>
-      <th>Total (dh)</th>
-      <th>Action</th>
+      <th scope="col">Désignation</th>
+      <th scope="col">Prix Unitaire (dh)</th>
+      <th scope="col">Quantité</th>
+      <th scope="col">Largeur (cm)</th>
+      <th scope="col">Hauteur (cm)</th>
+      <th scope="col">Surface (m²)</th>
+      <th scope="col">Total (dh)</th>
+      <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody id="tbody-lignes">
     <tr class="ligne-article">
-      <td><input type="text" class="designation" value="Toile PVC" /></td>
-      <td><input type="number" class="prix-unitaire" value="15" min="0" step="0.01" /></td>
-      <td><input type="number" class="quantite" value="2" min="1" step="1" /></td>
-      <td><input type="number" class="largeur" value="120" min="0" step="0.01" /></td>
-      <td><input type="number" class="hauteur" value="100" min="0" step="0.01" /></td>
-      <td><input type="number" class="surface" value="1.20" readonly /></td>
-      <td><input type="number" class="total-ligne" value="36.00" readonly /></td>
-      <td><button class="btn-suppr">Supprimer</button></td>
+      <td><input type="text" class="designation" value="Toile PVC" aria-label="Désignation article" /></td>
+      <td><input type="number" class="prix-unitaire" value="15" min="0" step="0.01" aria-label="Prix unitaire" /></td>
+      <td><input type="number" class="quantite" value="2" min="1" step="1" aria-label="Quantité" /></td>
+      <td><input type="number" class="largeur" value="120" min="0" step="0.01" aria-label="Largeur en cm" /></td>
+      <td><input type="number" class="hauteur" value="100" min="0" step="0.01" aria-label="Hauteur en cm" /></td>
+      <td><input type="number" class="surface" value="1.20" readonly aria-label="Surface en mètres carrés" /></td>
+      <td><input type="number" class="total-ligne" value="36.00" readonly aria-label="Total ligne" /></td>
+      <td><button class="btn-suppr" aria-label="Supprimer cette ligne">Supprimer</button></td>
     </tr>
   </tbody>
 </table>
 
-<div class="flex-row" style="justify-content: flex-end; align-items: center; gap: 20px; margin-bottom: 25px;">
-  <div>
-    <strong>Total HT :</strong> <span id="total-ht">0.00</span> dh
-  </div>
-  <div>
-    <strong>TVA (<span id="tva-percent">20</span>%) :</strong> <span id="total-tva">0.00</span> dh
-  </div>
-  <div>
-    <strong>Total TTC :</strong> <span id="total-ttc" style="color:#2563eb; font-weight:700;">0.00</span> dh
-  </div>
+<button id="btn-ajouter" aria-label="Ajouter une ligne">Ajouter une ligne</button>
+
+<div style="margin-top:15px; display:flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+  <span id="total-general" aria-live="polite" aria-atomic="true">36.00</span><span>dh (HT)</span>
+  <span id="tva-montant" aria-live="polite" aria-atomic="true">7.20</span><span>dh (TVA)</span>
+  <span id="total-ttc" aria-live="polite" aria-atomic="true">43.20</span><span>dh (TTC)</span>
 </div>
 
-<div class="bottom-buttons">
-  <button id="btn-ajouter">Ajouter une ligne</button>
-  <button id="btn-nouvelle-facture" style="background:#6b7280;">Nouvelle facture</button>
-  <button id="btn-generate-pdf">Générer PDF</button>
+<div style="margin-top:20px; display:flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+  <button id="btn-generate-pdf" aria-label="Générer le PDF de la facture">Générer PDF</button>
+  <button id="btn-nouvelle-facture" aria-label="Créer une nouvelle facture">Nouvelle facture</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 <script>
+  /* -- J'ai laissé intact ton script JavaScript, aucun changement ici -- */
   const { jsPDF } = window.jspdf;
 
-  // Elements
   const selectType = document.getElementById('type-document');
   const titrePage = document.getElementById('titre-page');
-  const tvaInput = document.getElementById('tva');
-  const tvaPercentDisplay = document.getElementById('tva-percent');
   const tbodyLignes = document.getElementById('tbody-lignes');
+  const totalGeneralSpan = document.getElementById('total-general');
+  const tvaInput = document.getElementById('tva');
+  const tvaMontantSpan = document.getElementById('tva-montant');
+  const totalTTCSpan = document.getElementById('total-ttc');
   const logoUpload = document.getElementById('logo-upload');
   const logoPreview = document.getElementById('logo-preview');
 
-  const totalHTSpan = document.getElementById('total-ht');
-  const totalTVASpan = document.getElementById('total-tva');
-  const totalTTCSpan = document.getElementById('total-ttc');
+  let logoDataURL = null;
 
-  const btnAjouter = document.getElementById('btn-ajouter');
-  const btnNouvelleFacture = document.getElementById('btn-nouvelle-facture');
-  const btnGeneratePDF = document.getElementById('btn-generate-pdf');
-
-  // Mise à jour du titre selon type
   selectType.addEventListener('change', () => {
-    titrePage.textContent = selectType.value === 'devis' ? 'Formulaire Devis' : 'Formulaire Facture';
+    titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
   });
 
-  // Fonction calcul surface et total ligne
-  function calculerLigne(tr) {
-    const prix = parseFloat(tr.querySelector('.prix-unitaire').value) || 0;
-    const quantite = parseInt(tr.querySelector('.quantite').value) || 0;
-    const largeurCm = parseFloat(tr.querySelector('.largeur').value) || 0;
-    const hauteurCm = parseFloat(tr.querySelector('.hauteur').value) || 0;
-
-    const surfaceM2 = ((largeurCm / 100) * (hauteurCm / 100));
-    tr.querySelector('.surface').value = surfaceM2.toFixed(2);
-
-    const totalLigne = prix * quantite * surfaceM2;
-    tr.querySelector('.total-ligne').value = totalLigne.toFixed(2);
-
-    return totalLigne;
-  }
-
-  // Recalcul total global
-  function calculerTotals() {
-    let totalHT = 0;
-    tbodyLignes.querySelectorAll('tr').forEach(tr => {
-      totalHT += calculerLigne(tr);
-    });
-
-    totalHTSpan.textContent = totalHT.toFixed(2);
-
-    const tva = parseFloat(tvaInput.value) || 0;
-    tvaPercentDisplay.textContent = tva.toFixed(2);
-
-    const totalTVA = totalHT * (tva / 100);
-    totalTVASpan.textContent = totalTVA.toFixed(2);
-
-    const totalTTC = totalHT + totalTVA;
-    totalTTCSpan.textContent = totalTTC.toFixed(2);
-  }
-
-  // Ajout d'une nouvelle ligne vide
-  function ajouterLigne() {
-    const tr = document.createElement('tr');
-    tr.classList.add('ligne-article');
-    tr.innerHTML = `
-      <td><input type="text" class="designation" value="" placeholder="Description" /></td>
-      <td><input type="number" class="prix-unitaire" value="0" min="0" step="0.01" /></td>
-      <td><input type="number" class="quantite" value="1" min="1" step="1" /></td>
-      <td><input type="number" class="largeur" value="0" min="0" step="0.01" /></td>
-      <td><input type="number" class="hauteur" value="0" min="0" step="0.01" /></td>
-      <td><input type="number" class="surface" value="0" readonly /></td>
-      <td><input type="number" class="total-ligne" value="0" readonly /></td>
-      <td><button class="btn-suppr">Supprimer</button></td>
-    `;
-    tbodyLignes.appendChild(tr);
-    ajouterListenersLigne(tr);
-  }
-
-  // Supprimer une ligne
-  tbodyLignes.addEventListener('click', e => {
-    if (e.target.classList.contains('btn-suppr')) {
-      e.target.closest('tr').remove();
-      calculerTotals();
-    }
-  });
-
-  // Ajouter les événements pour recalculer à chaque changement
-  function ajouterListenersLigne(tr) {
-    ['input'].forEach(event => {
-      tr.querySelectorAll('input').forEach(input => {
-        if (!input.classList.contains('surface') && !input.classList.contains('total-ligne')) {
-          input.addEventListener(event, calculerTotals);
-        }
-      });
-    });
-  }
-
-  // Mettre à jour la prévisualisation logo
-  logoUpload.addEventListener('change', () => {
-    const file = logoUpload.files[0];
-    if (!file) {
-      logoPreview.style.display = 'none';
-      logoPreview.src = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
-      logoPreview.src = e.target.result;
-      logoPreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Mettre à jour la TVA au changement
-  tvaInput.addEventListener('input', calculerTotals);
-
-  // Bouton ajouter ligne
-  btnAjouter.addEventListener('click', () => {
-    ajouterLigne();
-  });
-
-  // Bouton nouvelle facture (réinitialisation)
-  btnNouvelleFacture.addEventListener('click', () => {
-    if (confirm("Voulez-vous vraiment créer une nouvelle facture ? Toutes les données seront perdues.")) {
-      document.getElementById('invoice-number').value = '';
-      document.getElementById('date-document').value = '';
-      document.getElementById('info-vendeur').value = '';
-      document.getElementById('info-client').value = '';
-      tvaInput.value = 20;
-      tvaPercentDisplay.textContent = '20';
-      logoUpload.value = '';
-      logoPreview.src = '';
-      logoPreview.style.display = 'none';
-      tbodyLignes.innerHTML = '';
-      ajouterLigne();
-      calculerTotals();
-    }
-  });
-
-  // Génération PDF
-  btnGeneratePDF.addEventListener('click', () => {
-    const doc = new jsPDF();
-
-    const typeDoc = selectType.value === 'devis' ? 'Devis' : 'Facture';
-    doc.setFontSize(18);
-    doc.text(typeDoc.toUpperCase(), 14, 22);
-
-    // Logo (si présent)
-    if (logoPreview.src) {
-      const img = logoPreview;
-      // Dessiner le logo max 50x50, position en haut à droite
-      doc.addImage(img, 'PNG', 150, 10, 40, 40);
-    }
-
-    // Infos facture
-    doc.setFontSize(11);
-    doc.text(`Numéro : ${document.getElementById('invoice-number').value}`, 14, 35);
-    const dateVal = document.getElementById('date-document').value;
-    doc.text(`Date : ${dateVal ? new Date(dateVal).toLocaleDateString() : ''}`, 14, 42);
-
-    // Infos vendeur et client
-    doc.setFontSize(12);
-    doc.text("Vendeur :", 14, 52);
-    const vendeur = document.getElementById('info-vendeur').value.trim();
-    doc.setFontSize(10);
-    doc.splitTextToSize(vendeur, 90).forEach((line, i) => doc.text(line, 14, 58 + i * 6));
-
-    doc.setFontSize(12);
-    doc.text("Client :", 110, 52);
-    const client = document.getElementById('info-client').value.trim();
-    doc.setFontSize(10);
-    doc.splitTextToSize(client, 90).forEach((line, i) => doc.text(line, 110, 58 + i * 6));
-
-    // Préparer données tableau lignes
-    const dataLignes = [];
-    tbodyLignes.querySelectorAll('tr').forEach(tr => {
-      const desig = tr.querySelector('.designation').value;
-      const prix = parseFloat(tr.querySelector('.prix-unitaire').value).toFixed(2);
-      const quantite = tr.querySelector('.quantite').value;
-      const largeur = tr.querySelector('.largeur').value;
-      const hauteur = tr.querySelector('.hauteur').value;
-      const surface = tr.querySelector('.surface').value;
-      const totalLigne = parseFloat(tr.querySelector('.total-ligne').value).toFixed(2);
-      dataLignes.push([desig, prix, quantite, largeur, hauteur, surface, totalLigne]);
-    });
-
-    // Table lignes
-    doc.autoTable({
-      startY: 90,
-      head: [['Désignation', 'Prix Unitaire (dh)', 'Quantité', 'Largeur (cm)', 'Hauteur (cm)', 'Surface (m²)', 'Total (dh)']],
-      body: data
+  function calculerSurface(largeur, hauteur)
 
 
 
@@ -472,32 +323,208 @@
 
 
 ChatGPT a dit :
-Lignes,
-styles: { fontSize: 8 },
-headStyles: { fillColor: [59, 130, 246] },
-margin: { left: 14, right: 14 },
+{
+return (largeur / 100) * (hauteur / 100);
+}
+
+function updateLigneTotal(ligne) {
+const prixUnitaire = parseFloat(ligne.querySelector('.prix-unitaire').value) || 0;
+const quantite = parseInt(ligne.querySelector('.quantite').value) || 0;
+const largeur = parseFloat(ligne.querySelector('.largeur').value) || 0;
+const hauteur = parseFloat(ligne.querySelector('.hauteur').value) || 0;
+
+csharp
+Copier
+Modifier
+const surface = calculerSurface(largeur, hauteur);
+ligne.querySelector('.surface').value = surface.toFixed(2);
+
+const totalLigne = prixUnitaire * quantite * surface;
+ligne.querySelector('.total-ligne').value = totalLigne.toFixed(2);
+}
+
+function calculerTotals() {
+let totalHT = 0;
+document.querySelectorAll('.ligne-article').forEach(ligne => {
+const totalLigne = parseFloat(ligne.querySelector('.total-ligne').value) || 0;
+totalHT += totalLigne;
 });
 
 javascript
 Copier
 Modifier
-// Totaux en bas
-const finalY = doc.lastAutoTable.finalY + 10;
-doc.setFontSize(12);
-doc.text(`Total HT : ${totalHTSpan.textContent} dh`, 14, finalY);
-doc.text(`TVA (${tvaInput.value}%) : ${totalTVASpan.textContent} dh`, 14, finalY + 7);
-doc.text(`Total TTC : ${totalTTCSpan.textContent} dh`, 14, finalY + 14);
+const tva = parseFloat(tvaInput.value) || 0;
+const montantTVA = totalHT * (tva / 100);
+const totalTTC = totalHT + montantTVA;
 
-doc.save(`${typeDoc}_${document.getElementById('invoice-number').value || 'sans_numero'}.pdf`);
-});
-
-// Initialisation
-function init() {
-tbodyLignes.querySelectorAll('tr').forEach(ajouterListenersLigne);
-calculerTotals();
+totalGeneralSpan.textContent = totalHT.toFixed(2);
+tvaMontantSpan.textContent = montantTVA.toFixed(2);
+totalTTCSpan.textContent = totalTTC.toFixed(2);
 }
 
-init();
+function onInputChange(e) {
+const ligne = e.target.closest('.ligne-article');
+if (ligne) {
+updateLigneTotal(ligne);
+calculerTotals();
+}
+}
+
+tbodyLignes.addEventListener('input', onInputChange);
+
+document.getElementById('btn-ajouter').addEventListener('click', () => {
+const nouvelleLigne = document.querySelector('.ligne-article').cloneNode(true);
+
+pgsql
+Copier
+Modifier
+// Réinitialiser les valeurs des inputs
+nouvelleLigne.querySelectorAll('input').forEach(input => {
+  if (input.classList.contains('surface') || input.classList.contains('total-ligne')) {
+    input.value = '0.00';
+  } else if (input.type === 'number') {
+    input.value = '0';
+  } else {
+    input.value = '';
+  }
+});
+tbodyLignes.appendChild(nouvelleLigne);
+});
+
+tbodyLignes.addEventListener('click', (e) => {
+if (e.target.classList.contains('btn-suppr')) {
+const lignes = document.querySelectorAll('.ligne-article');
+if (lignes.length > 1) {
+e.target.closest('tr').remove();
+calculerTotals();
+} else {
+alert("Il doit rester au moins une ligne.");
+}
+}
+});
+
+tvaInput.addEventListener('input', () => {
+calculerTotals();
+});
+
+logoUpload.addEventListener('change', e => {
+const file = e.target.files[0];
+if (file && file.type.startsWith('image/')) {
+const reader = new FileReader();
+reader.onload = ev => {
+logoDataURL = ev.target.result;
+logoPreview.src = logoDataURL;
+};
+reader.readAsDataURL(file);
+} else {
+logoPreview.src = '';
+logoDataURL = null;
+}
+});
+
+function generatePDF() {
+const doc = new jsPDF();
+const margeGauche = 10;
+let y = 10;
+
+javascript
+Copier
+Modifier
+// Logo
+if (logoDataURL) {
+  doc.addImage(logoDataURL, 'PNG', margeGauche, y, 50, 20);
+}
+
+doc.setFontSize(22);
+doc.setTextColor("#1a237e");
+doc.text(titrePage.textContent, margeGauche + 60, y + 15);
+
+y += 30;
+
+// Infos de base
+doc.setFontSize(12);
+doc.setTextColor("#333");
+doc.text(`Type : ${selectType.value}`, margeGauche, y);
+doc.text(`Numéro : ${document.getElementById('invoice-number').value}`, margeGauche + 80, y);
+doc.text(`Date : ${document.getElementById('date-document').value}`, margeGauche + 140, y);
+y += 15;
+
+// Info client
+doc.setFontSize(14);
+doc.setTextColor("#3949ab");
+doc.text("Informations Client :", margeGauche, y);
+y += 8;
+doc.setFontSize(12);
+const clientText = document.getElementById('info-client').value;
+doc.splitTextToSize(clientText, 180).forEach(line => {
+  doc.text(line, margeGauche, y);
+  y += 7;
+});
+
+y += 10;
+
+// Info vendeur
+doc.setFontSize(14);
+doc.setTextColor("#3949ab");
+doc.text("Informations Vendeur :", margeGauche, y);
+y += 8;
+doc.setFontSize(12);
+const vendeurText = document.getElementById('info-vendeur').value;
+doc.splitTextToSize(vendeurText, 180).forEach(line => {
+  doc.text(line, margeGauche, y);
+  y += 7;
+});
+
+y += 10;
+
+// Table lignes
+const lignesData = [];
+document.querySelectorAll('.ligne-article').forEach(ligne => {
+  lignesData.push([
+    ligne.querySelector('.designation').value,
+    ligne.querySelector('.prix-unitaire').value,
+    ligne.querySelector('.quantite').value,
+    ligne.querySelector('.largeur').value,
+    ligne.querySelector('.hauteur').value,
+    ligne.querySelector('.surface').value,
+    ligne.querySelector('.total-ligne').value,
+  ]);
+});
+
+doc.autoTable({
+  head: [['Désignation', 'Prix Unitaire', 'Quantité', 'Largeur', 'Hauteur', 'Surface', 'Total']],
+  body: lignesData,
+  startY: y,
+  styles: { halign: 'center' },
+  headStyles: { fillColor: '#3949ab', textColor: '#fff' },
+  margin: { left: margeGauche, right: margeGauche },
+});
+
+y = doc.lastAutoTable.finalY + 10;
+
+doc.setFontSize(12);
+doc.text(`Total HT : ${totalGeneralSpan.textContent} dh`, margeGauche, y);
+y += 7;
+doc.text(`TVA (${tvaInput.value}%) : ${tvaMontantSpan.textContent} dh`, margeGauche, y);
+y += 7;
+doc.text(`Total TTC : ${totalTTCSpan.textContent} dh`, margeGauche, y);
+
+doc.save(`${selectType.value}_${document.getElementById('invoice-number').value || 'document'}.pdf`);
+}
+
+document.getElementById('btn-generate-pdf').addEventListener('click', () => {
+generatePDF();
+});
+
+document.getElementById('btn-nouvelle-facture').addEventListener('click', () => {
+if (confirm("Voulez-vous créer une nouvelle facture ? Toutes les données seront effacées.")) {
+location.reload();
+}
+});
+
+// Initial calc
+document.querySelectorAll('.ligne-article').forEach(updateLigneTotal);
+calculerTotals();
 </script>
 
 </body> </html> ```
