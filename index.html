@@ -310,6 +310,9 @@ footer {
 <div class="container" style="display: none;" id="mainContainer">
     <h2>Création de Facture</h2>
   <button onclick="deconnexion()">🔒 Déconnexion</button>
+  <!-- Index 1 - ajout champ lien Google Sheets -->
+<label for="sheetLink">Lien Google Sheets :</label>
+<input type="text" id="sheetLink" placeholder="Coller le lien Google Sheets ici" />
     <form id="factureForm">
       <label for="type">Type</label>
       <select name="type" id="type" required>
@@ -439,8 +442,10 @@ window.onload = function() {
     document.getElementById('username').value = savedUsername;
     document.getElementById('password').value = savedPassword;
     document.getElementById('rememberMe').checked = true;
+    document.getElementById('sheetLink').value = localStorage.getItem('sheetLink') || '';
   }
     protegerAcces(); // <--- ajoute ceci ici
+  
 };
 function chargerLogo(event) {
   const file = event.target.files[0];
@@ -453,7 +458,8 @@ function chargerLogo(event) {
   };
   reader.readAsDataURL(file);
 }
-
+function saveSettings() {
+  localStorage.setItem('sheetLink', document.getElementById('sheetLink').value);
     // Lorsque l'utilisateur enregistre les informations de l'entreprise
     function enregistrerEntreprise() {
       const entrepriseInfo = {
