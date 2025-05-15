@@ -273,270 +273,231 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script>
   const { jsPDF } = window.jspdf;
 
+  // Elements
   const selectType = document.getElementById('type-document');
   const titrePage = document.getElementById('titre-page');
-  const tbodyLignes = document.getElementById('tbody-lignes');
   const tvaInput = document.getElementById('tva');
   const tvaPercentDisplay = document.getElementById('tva-percent');
-  const totalHTSpan = document.getElementById('total-ht');
-  const totalTVASpan = document.getElementById('total-tva');
-  const totalTTCSpan = document.getElementById('total-ttc');
+  const tbodyLignes = document.getElementById('tbody-lignes');
   const logoUpload = document.getElementById('logo-upload');
   const logoPreview = document.getElementById('logo-preview');
 
-  // Changer le titre selon type document
+  const totalHTSpan = document.getElementById('total-ht');
+  const totalTVASpan = document.getElementById('total-tva');
+  const totalTTCSpan = document.getElementById('total-ttc');
+
+  const btnAjouter = document.getElementById('btn-ajouter');
+  const btnNouvelleFacture = document.getElementById('btn-nouvelle-facture');
+  const btnGeneratePDF = document.getElementById('btn-generate-pdf');
+
+  // Mise à jour du titre selon type
   selectType.addEventListener('change', () => {
-    titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
+    titrePage.textContent = selectType.value === 'devis' ? 'Formulaire Devis' : 'Formulaire Facture';
   });
 
-  // Afficher aperçu logo uploadé
-  logoUpload.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) {
-      logoPreview.style.display = 'none';
-      logoPreview.src = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      logoPreview.src = event.target.result;
-      logoPreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
+  // Fonction calcul surface et total ligne
+  function calculerLigne(tr) {
+    const prix = parseFloat(tr.querySelector('.prix-unitaire').value) || 0;
+    const quantite = parseInt(tr.querySelector('.quantite').value) || 0;
+    const largeurCm = parseFloat(tr.querySelector('.largeur').value) || 0;
+    const hauteurCm = parseFloat(tr.querySelector('.hauteur').value) || 0;
 
-  // Calcul surface en m²
-  function calculerSurface(largeur, hauteur) {
-    return (largeur * hauteur) / 10000;
+    const surfaceM2 = ((largeurCm / 100) * (hauteurCm / 100));
+    tr.querySelector('.surface').value = surfaceM2.toFixed(2);
+
+    const totalLigne = prix * quantite * surfaceM2;
+    tr.querySelector('.total-ligne').value = totalLigne.toFixed(2);
+
+    return totalLigne;
   }
 
-  // Calcul total ligne (surface * PU * qt)
-  function calculerTotalLigne(surface, prixUnitaire, quantite) {
-    return surface * prixUnitaire * quantite;
-  }
-
-  // Met à jour une ligne donnée
-  function mettreAJourLigne(ligne) {
-    const largeur = parseFloat(ligne.querySelector('.largeur').value) || 0;
-    const hauteur = parseFloat(ligne.querySelector('.hauteur').value) || 0;
-    const prixUnitaire = parseFloat(ligne.querySelector('.prix-unitaire').value) || 0;
-    const quantite = parseInt(ligne.querySelector('.quantite').value) || 0;
-
-    const surface = calculerSurface(largeur, hauteur);
-    ligne.querySelector('.surface').value = surface.toFixed(4);
-
-    const total = calculerTotalLigne(surface, prixUnitaire, quantite);
-    ligne.querySelector('.total-ligne').value = total.toFixed(2);
-  }
-
-  // Met à jour tous les totaux HT, TVA et TTC
-  function mettreAJourTotaux() {
+  // Recalcul total global
+  function calculerTotals() {
     let totalHT = 0;
-    document.querySelectorAll('.ligne-article').forEach(ligne => {
-      const totalLigne = parseFloat(ligne.querySelector('.total-ligne').value) || 0;
-      totalHT += totalLigne;
+    tbodyLignes.querySelectorAll('tr').forEach(tr => {
+      totalHT += calculerLigne(tr);
     });
 
     totalHTSpan.textContent = totalHT.toFixed(2);
 
-    const tvaPct = parseFloat(tvaInput.value) || 0;
-    tvaPercentDisplay.textContent = tvaPct.toFixed(2);
+    const tva = parseFloat(tvaInput.value) || 0;
+    tvaPercentDisplay.textContent = tva.toFixed(2);
 
-    const totalTVA = totalHT * (tvaPct / 100);
+    const totalTVA = totalHT * (tva / 100);
     totalTVASpan.textContent = totalTVA.toFixed(2);
 
     const totalTTC = totalHT + totalTVA;
     totalTTCSpan.textContent = totalTTC.toFixed(2);
   }
 
-  // Mise à jour complète
-  function miseAJourComplete() {
-    document.querySelectorAll('.ligne-article').forEach(ligne => {
-      mettreAJourLigne(ligne);
-    });
-    mettreAJourTotaux();
-  }
-
-  // Ajouter une nouvelle ligne
+  // Ajout d'une nouvelle ligne vide
   function ajouterLigne() {
-    const nouvelleLigne = document.createElement('tr');
-    nouvelleLigne.classList.add('ligne-article');
-    nouvelleLigne.innerHTML = `
-      <td><input type="text" class="designation" value="" placeholder="Produit / service" /></td>
+    const tr = document.createElement('tr');
+    tr.classList.add('ligne-article');
+    tr.innerHTML = `
+      <td><input type="text" class="designation" value="" placeholder="Description" /></td>
       <td><input type="number" class="prix-unitaire" value="0" min="0" step="0.01" /></td>
       <td><input type="number" class="quantite" value="1" min="1" step="1" /></td>
-      <
-td><input type="number" class="largeur" value="0" min="0" step="0.01" /></td>
-<td><input type="number" class="hauteur" value="0" min="0" step="0.01" /></td>
-<td><input type="number" class="surface" value="0" readonly /></td>
-<td><input type="number" class="total-ligne" value="0" readonly /></td>
-<td><button class="btn-suppr">Supprimer</button></td>
-`;
-tbodyLignes.appendChild(nouvelleLigne);
-ajouterListenersLigne(nouvelleLigne);
-}
+      <td><input type="number" class="largeur" value="0" min="0" step="0.01" /></td>
+      <td><input type="number" class="hauteur" value="0" min="0" step="0.01" /></td>
+      <td><input type="number" class="surface" value="0" readonly /></td>
+      <td><input type="number" class="total-ligne" value="0" readonly /></td>
+      <td><button class="btn-suppr">Supprimer</button></td>
+    `;
+    tbodyLignes.appendChild(tr);
+    ajouterListenersLigne(tr);
+  }
 
-// Supprimer ligne
-tbodyLignes.addEventListener('click', (e) => {
-if (e.target.classList.contains('btn-suppr')) {
-e.target.closest('tr').remove();
-miseAJourComplete();
-}
+  // Supprimer une ligne
+  tbodyLignes.addEventListener('click', e => {
+    if (e.target.classList.contains('btn-suppr')) {
+      e.target.closest('tr').remove();
+      calculerTotals();
+    }
+  });
+
+  // Ajouter les événements pour recalculer à chaque changement
+  function ajouterListenersLigne(tr) {
+    ['input'].forEach(event => {
+      tr.querySelectorAll('input').forEach(input => {
+        if (!input.classList.contains('surface') && !input.classList.contains('total-ligne')) {
+          input.addEventListener(event, calculerTotals);
+        }
+      });
+    });
+  }
+
+  // Mettre à jour la prévisualisation logo
+  logoUpload.addEventListener('change', () => {
+    const file = logoUpload.files[0];
+    if (!file) {
+      logoPreview.style.display = 'none';
+      logoPreview.src = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      logoPreview.src = e.target.result;
+      logoPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Mettre à jour la TVA au changement
+  tvaInput.addEventListener('input', calculerTotals);
+
+  // Bouton ajouter ligne
+  btnAjouter.addEventListener('click', () => {
+    ajouterLigne();
+  });
+
+  // Bouton nouvelle facture (réinitialisation)
+  btnNouvelleFacture.addEventListener('click', () => {
+    if (confirm("Voulez-vous vraiment créer une nouvelle facture ? Toutes les données seront perdues.")) {
+      document.getElementById('invoice-number').value = '';
+      document.getElementById('date-document').value = '';
+      document.getElementById('info-vendeur').value = '';
+      document.getElementById('info-client').value = '';
+      tvaInput.value = 20;
+      tvaPercentDisplay.textContent = '20';
+      logoUpload.value = '';
+      logoPreview.src = '';
+      logoPreview.style.display = 'none';
+      tbodyLignes.innerHTML = '';
+      ajouterLigne();
+      calculerTotals();
+    }
+  });
+
+  // Génération PDF
+  btnGeneratePDF.addEventListener('click', () => {
+    const doc = new jsPDF();
+
+    const typeDoc = selectType.value === 'devis' ? 'Devis' : 'Facture';
+    doc.setFontSize(18);
+    doc.text(typeDoc.toUpperCase(), 14, 22);
+
+    // Logo (si présent)
+    if (logoPreview.src) {
+      const img = logoPreview;
+      // Dessiner le logo max 50x50, position en haut à droite
+      doc.addImage(img, 'PNG', 150, 10, 40, 40);
+    }
+
+    // Infos facture
+    doc.setFontSize(11);
+    doc.text(`Numéro : ${document.getElementById('invoice-number').value}`, 14, 35);
+    const dateVal = document.getElementById('date-document').value;
+    doc.text(`Date : ${dateVal ? new Date(dateVal).toLocaleDateString() : ''}`, 14, 42);
+
+    // Infos vendeur et client
+    doc.setFontSize(12);
+    doc.text("Vendeur :", 14, 52);
+    const vendeur = document.getElementById('info-vendeur').value.trim();
+    doc.setFontSize(10);
+    doc.splitTextToSize(vendeur, 90).forEach((line, i) => doc.text(line, 14, 58 + i * 6));
+
+    doc.setFontSize(12);
+    doc.text("Client :", 110, 52);
+    const client = document.getElementById('info-client').value.trim();
+    doc.setFontSize(10);
+    doc.splitTextToSize(client, 90).forEach((line, i) => doc.text(line, 110, 58 + i * 6));
+
+    // Préparer données tableau lignes
+    const dataLignes = [];
+    tbodyLignes.querySelectorAll('tr').forEach(tr => {
+      const desig = tr.querySelector('.designation').value;
+      const prix = parseFloat(tr.querySelector('.prix-unitaire').value).toFixed(2);
+      const quantite = tr.querySelector('.quantite').value;
+      const largeur = tr.querySelector('.largeur').value;
+      const hauteur = tr.querySelector('.hauteur').value;
+      const surface = tr.querySelector('.surface').value;
+      const totalLigne = parseFloat(tr.querySelector('.total-ligne').value).toFixed(2);
+      dataLignes.push([desig, prix, quantite, largeur, hauteur, surface, totalLigne]);
+    });
+
+    // Table lignes
+    doc.autoTable({
+      startY: 90,
+      head: [['Désignation', 'Prix Unitaire (dh)', 'Quantité', 'Largeur (cm)', 'Hauteur (cm)', 'Surface (m²)', 'Total (dh)']],
+      body: data
+
+
+
+
+
+
+ChatGPT a dit :
+Lignes,
+styles: { fontSize: 8 },
+headStyles: { fillColor: [59, 130, 246] },
+margin: { left: 14, right: 14 },
 });
 
-// Ajouter listeners sur une ligne
-function ajouterListenersLigne(ligne) {
-['prix-unitaire', 'quantite', 'largeur', 'hauteur'].forEach(cls => {
-ligne.querySelector('.' + cls).addEventListener('input', () => {
-mettreAJourLigne(ligne);
-mettreAJourTotaux();
-});
-});
-}
-
-// Initialisation
-document.querySelectorAll('.ligne-article').forEach(ligne => {
-ajouterListenersLigne(ligne);
-});
-
-// Mettre à jour quand TVA change
-tvaInput.addEventListener('input', () => {
-mettreAJourTotaux();
-});
-
-// Bouton ajouter ligne
-document.getElementById('btn-ajouter').addEventListener('click', () => {
-ajouterLigne();
-});
-
-// Bouton nouvelle facture (reset tout)
-document.getElementById('btn-nouvelle-facture').addEventListener('click', () => {
-if (!confirm('Voulez-vous vraiment créer une nouvelle facture ? Les données actuelles seront perdues.')) return;
-  // Reset champs principaux
-selectType.value = 'devis';
-titrePage.textContent = 'Formulaire Devis';
-document.getElementById('invoice-number').value = '';
-document.getElementById('date-document').value = '';
-document.getElementById('info-vendeur').value = '';
-document.getElementById('info-client').value = '';
-tvaInput.value = 20;
-tvaPercentDisplay.textContent = '20';
-
-// Reset logo
-logoUpload.value = '';
-logoPreview.style.display = 'none';
-logoPreview.src = '';
-
-// Reset lignes
-tbodyLignes.innerHTML = '';
-ajouterLigne();
-
-miseAJourTotaux();
-});
-
-// Fonction génération PDF
-document.getElementById('btn-generate-pdf').addEventListener('click', () => {
-const doc = new jsPDF();
-  // Logo
-if (logoPreview.src && logoPreview.style.display !== 'none') {
-  const imgWidth = 50;
-  const imgHeight = (logoPreview.naturalHeight / logoPreview.naturalWidth) * imgWidth;
-  doc.addImage(logoPreview.src, 'PNG', 15, 10, imgWidth, imgHeight);
-}
-
-// Titre
-doc.setFontSize(22);
-doc.setTextColor('#2563eb');
-doc.text(selectType.value === 'devis' ? 'DEVIS' : 'FACTURE', 150, 20, { align: 'right' });
-
-// Infos facturation
-doc.setFontSize(11);
-doc.setTextColor('#000000');
-doc.text(`N°: ${document.getElementById('invoice-number').value}`, 150, 30, { align: 'right' });
-doc.text(`Date: ${document.getElementById('date-document').value}`, 150, 36, { align: 'right' });
-
-// Infos vendeur
-doc.setFontSize(12);
-doc.setTextColor('#2c3e50');
-doc.text('Vendeur :', 15, 40);
-let vendeur = document.getElementById('info-vendeur').value.trim();
-vendeur.split('\n').forEach((line, i) => {
-  doc.text(line, 15, 46 + i * 6);
-});
-
-// Infos client
-doc.text('Client :', 110, 40);
-let client = document.getElementById('info-client').value.trim();
-client.split('\n').forEach((line, i) => {
-  doc.text(line, 110, 46 + i * 6);
-});
-
-// Table des lignes
-const lignes = [];
-document.querySelectorAll('.ligne-article').forEach(ligne => {
-  const designation = ligne.querySelector('.designation').value;
-  const pu = ligne.querySelector('.prix-unitaire').value;
-  const quantite = ligne.querySelector('.quantite').value;
-  const largeur = ligne.querySelector('.largeur').value;
-  const hauteur = ligne.querySelector('.hauteur').value;
-  const surface = ligne.querySelector('.surface').value;
-  const totalLigne = ligne.querySelector('.total-ligne').value;
-
-  lignes.push([
-    designation,
-    pu + ' dh',
-    quantite,
-    largeur + ' cm',
-    hauteur + ' cm',
-    surface + ' m²',
-    totalLigne + ' dh',
-  ]);
-});
-
-doc.autoTable({
-  startY: 85,
-  head: [['Désignation', 'PU', 'Qté', 'Larg.', 'Haut.', 'Surface', 'Total']],
-  body: lignes,
-  styles: { halign: 'center' },
-  headStyles: { fillColor: '#3b82f6', textColor: 255 },
-  columnStyles: {
-    0: { halign: 'left', cellWidth: 45 },
-    1: { cellWidth: 18 },
-    2: { cellWidth: 15 },
-    3: { cellWidth: 18 },
-    4: { cellWidth: 18 },
-    5: { cellWidth: 25 },
-    6: { cellWidth: 25 },
-  },
-});
-
+javascript
+Copier
+Modifier
 // Totaux en bas
 const finalY = doc.lastAutoTable.finalY + 10;
-
-const totalHT = parseFloat(totalHTSpan.textContent);
-const totalTVA = parseFloat(totalTVASpan.textContent);
-const totalTTC = parseFloat(totalTTCSpan.textContent);
-const tvaPct = parseFloat(tvaInput.value);
-
 doc.setFontSize(12);
-doc.text(`Total HT : ${totalHT.toFixed(2)} dh`, 140, finalY);
-doc.text(`TVA (${tvaPct.toFixed(2)}%) : ${totalTVA.toFixed(2)} dh`, 140, finalY + 7);
-doc.setTextColor('#2563eb');
-doc.setFontSize(14);
-doc.text(`Total TTC : ${totalTTC.toFixed(2)} dh`, 140, finalY + 15);
-doc.setTextColor('#000000');
+doc.text(`Total HT : ${totalHTSpan.textContent} dh`, 14, finalY);
+doc.text(`TVA (${tvaInput.value}%) : ${totalTVASpan.textContent} dh`, 14, finalY + 7);
+doc.text(`Total TTC : ${totalTTCSpan.textContent} dh`, 14, finalY + 14);
 
-// Exporter le PDF
-doc.save(`${selectType.value}_${document.getElementById('invoice-number').value || 'sans_numero'}.pdf`);
+doc.save(`${typeDoc}_${document.getElementById('invoice-number').value || 'sans_numero'}.pdf`);
 });
 
-// Initial calcul
-miseAJourComplete();
+// Initialisation
+function init() {
+tbodyLignes.querySelectorAll('tr').forEach(ajouterListenersLigne);
+calculerTotals();
+}
+
+init();
 </script>
 
 </body> </html> ```
