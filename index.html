@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.5" />
   <title>Création de Facture</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -177,64 +177,87 @@ $box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   min-height: 100vh;
 }
 
-// Style du conteneur principal de login
+/* Style du conteneur principal de login */
 .login-container {
-  background-color: $white;
-  border-radius: $border-radius;
-  padding: $padding;
-  max-width: $max-width;
-  box-shadow: $box-shadow;
+  background-color: #fff;
+  border-radius: 8px; /* Bordures arrondies */
+  padding: 20px; /* Espacement interne */
+  max-width: 400px; /* Largeur maximale */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
   text-align: center;
+  display: flex;
   flex-direction: column;
+  margin: 50px auto; /* Centrer le conteneur */
+  justify-content: center; /* Centrer verticalement */
+  align-items: center; /* Centrer horizontalement */
 }
 
-// Titres
+/* Titre de l'interface */
 h2 {
   font-size: 2rem;
-  color: $primary-color;
+  color: #2c3e50; /* Couleur de texte foncé */
   margin-bottom: 20px;
 }
 
-// Formulaire
-form {
+/* Styles pour les champs de saisie */
+input {
   width: 100%;
-
-  label {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: $secondary-color;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  input,
-  button {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: $border-radius;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-  }
-
-  input:focus {
-    outline: none;
-    border: 2px solid $primary-color;
-  }
-
-  button {
-    background-color: $primary-color;
-    color: $white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-
-    &:hover {
-      background-color: $accent-color;
-    }
-  }
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px; /* Bordures arrondies */
+  border: 1px solid #ddd; /* Bordure légère */
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
+
+input:focus {
+  outline: none;
+  border: 2px solid #3498db; /* Bordure bleue au focus */
+}
+
+/* Style pour le label "Se souvenir de moi" */
+div {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centrer horizontalement le label et la case à cocher */
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 0.9rem;
+  color: #7f8c8d; /* Couleur de texte plus claire */
+  margin-left: 8px;
+}
+
+/* Bouton de connexion */
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #3498db; /* Couleur de fond bleue */
+  color: #fff; /* Texte blanc */
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9; /* Changement de couleur au survol */
+}
+
+button:active {
+  background-color: #1c5980; /* Couleur plus foncée au clic */
+}
+
+/* Style pour l'élément checkbox */
+input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
 
 // Styles pour la section "footer"
 footer {
@@ -286,6 +309,7 @@ footer {
 
 <div class="container" style="display: none;" id="mainContainer">
     <h2>Création de Facture</h2>
+  <button onclick="deconnexion()">🔒 Déconnexion</button>
     <form id="factureForm">
       <label for="type">Type</label>
       <select name="type" id="type" required>
@@ -359,7 +383,18 @@ footer {
         toast.classList.remove('show');
       }, 3000); // La notification disparaît après 3 secondes
     }
-    
+
+    function protegerAcces() {
+  const estConnecte = sessionStorage.getItem('connecte');
+  if (!estConnecte) {
+    document.getElementById('mainContainer').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'flex';
+  } else {
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'block';
+  }
+}
+
   let logoImageBase64 = null;
   
 // Vérifier si l'utilisateur a coché "Remember me" et s'il a des informations sauvegardées
@@ -378,6 +413,9 @@ function verifierLogin() {
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('mainContainer').style.display = 'block';
     afficherToast("Connexion réussie !");
+
+sessionStorage.setItem('connecte', 'true');
+protegerAcces();
 
     // Si "Remember me" est coché, on stocke les informations dans localStorage
     if (rememberMe) {
@@ -402,6 +440,7 @@ window.onload = function() {
     document.getElementById('password').value = savedPassword;
     document.getElementById('rememberMe').checked = true;
   }
+    protegerAcces(); // <--- ajoute ceci ici
 };
 function chargerLogo(event) {
   const file = event.target.files[0];
@@ -627,6 +666,12 @@ doc.save(`${factureData.client}_facture.pdf`);
       // Affichage du message de confirmation
       afficherToast("Information enregistrée avec succès !");
     }
+function deconnexion() {
+  sessionStorage.removeItem('connecte');
+  localStorage.removeItem('username');
+  localStorage.removeItem('password');
+  location.reload();
+}
 
     function reinitialiserFormulaire() {
       document.getElementById('factureForm').reset();
