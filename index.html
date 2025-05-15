@@ -28,6 +28,49 @@
       padding: 20px;
     }
 
+    /* Formulaire de connexion */
+    .login-form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .login-form label {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .login-form input[type="text"], .login-form input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    .login-form button {
+      background-color: #2980b9;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    .login-form button:hover {
+      background-color: #3498db;
+    }
+
     /* Sélecteurs pour les labels et inputs */
     label {
       display: block;
@@ -218,86 +261,99 @@
   <div class="container">
     <h1 id="titre-page">Formulaire Devis</h1>
 
-    <div class="flex-row">
-      <div>
-        <label for="type-document">Type :</label>
-        <select id="type-document">
-          <option value="devis" selected>Devis</option>
-          <option value="facture">Facture</option>
-        </select>
+    <!-- Formulaire de connexion -->
+    <div class="login-form">
+      <label for="user-id">Identifiant :</label>
+      <input type="text" id="user-id" placeholder="Entrez votre identifiant" />
+      <label for="password">Mot de passe :</label>
+      <input type="password" id="password" placeholder="Entrez votre mot de passe" />
+      <button id="btn-login">Se connecter</button>
+      <div id="login-error" style="color: red; display: none;">Identifiant ou mot de passe incorrect.</div>
+    </div>
+
+    <!-- Formulaire de création de devis (initialement caché) -->
+    <div id="formulaire-devis" style="display: none;">
+      <div class="flex-row">
+        <div>
+          <label for="type-document">Type :</label>
+          <select id="type-document">
+            <option value="devis" selected>Devis</option>
+            <option value="facture">Facture</option>
+          </select>
+        </div>
+        <div>
+          <label for="invoice-number">Numéro :</label>
+          <input type="text" id="invoice-number" placeholder="Ex : INV-2025-001" />
+        </div>
+        <div>
+          <label for="date-document">Date :</label>
+          <input type="date" id="date-document" />
+        </div>
       </div>
-      <div>
-        <label for="invoice-number">Numéro :</label>
-        <input type="text" id="invoice-number" placeholder="Ex : INV-2025-001" />
+
+      <div class="flex-row">
+        <div class="logo-section">
+          <label for="logo-upload">Logo :</label>
+          <input type="file" id="logo-upload" accept="image/*" />
+          <img id="logo-preview" alt="Aperçu logo" />
+        </div>
+        <div>
+          <label for="tva">TVA (%) :</label>
+          <input type="number" id="tva" value="20" min="0" step="0.01" />
+        </div>
       </div>
-      <div>
-        <label for="date-document">Date :</label>
-        <input type="date" id="date-document" />
+
+      <div class="section-info">
+        <h3>Informations Client</h3>
+        <textarea id="info-client" placeholder="Nom, adresse, téléphone..."></textarea>
       </div>
-    </div>
 
-    <div class="flex-row">
-      <div class="logo-section">
-        <label for="logo-upload">Logo :</label>
-        <input type="file" id="logo-upload" accept="image/*" />
-        <img id="logo-preview" alt="Aperçu logo" />
+      <div class="section-info">
+        <h3>Informations Vendeur</h3>
+        <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..."></textarea>
       </div>
-      <div>
-        <label for="tva">TVA (%) :</label>
-        <input type="number" id="tva" value="20" min="0" step="0.01" />
+
+      <div class="table-wrapper">
+        <table id="table-lignes">
+          <thead>
+            <tr>
+              <th>Désignation</th>
+              <th>Prix Unitaire (dh)</th>
+              <th>Quantité</th>
+              <th>Largeur (cm)</th>
+              <th>Hauteur (cm)</th>
+              <th>Surface (m²)</th>
+              <th>Total (dh)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-lignes">
+            <tr class="ligne-article">
+              <td><input type="text" class="designation" value="Toile PVC" /></td>
+              <td><input type="number" class="prix-unitaire" value="15" min="0" step="0.01" /></td>
+              <td><input type="number" class="quantite" value="2" min="1" step="1" /></td>
+              <td><input type="number" class="largeur" value="120" min="0" step="0.01" /></td>
+              <td><input type="number" class="hauteur" value="100" min="0" step="0.01" /></td>
+              <td><input type="number" class="surface" value="1.20" readonly /></td>
+              <td><input type="number" class="total-ligne" value="36.00" readonly /></td>
+              <td><button class="btn-suppr">Supprimer</button></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    <div class="section-info">
-      <h3>Informations Client</h3>
-      <textarea id="info-client" placeholder="Nom, adresse, téléphone..."></textarea>
-    </div>
+      <button id="btn-ajouter">Ajouter une ligne</button>
 
-    <div class="section-info">
-      <h3>Informations Vendeur</h3>
-      <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..."></textarea>
-    </div>
+      <div class="total-section">
+        <span id="total-general">36.00</span> dh (HT)
+        <span id="tva-montant">7.20</span> dh (TVA)
+        <span id="total-ttc">43.20</span> dh (TTC)
+      </div>
 
-    <div class="table-wrapper">
-      <table id="table-lignes">
-        <thead>
-          <tr>
-            <th>Désignation</th>
-            <th>Prix Unitaire (dh)</th>
-            <th>Quantité</th>
-            <th>Largeur (cm)</th>
-            <th>Hauteur (cm)</th>
-            <th>Surface (m²)</th>
-            <th>Total (dh)</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-lignes">
-          <tr class="ligne-article">
-            <td><input type="text" class="designation" value="Toile PVC" /></td>
-            <td><input type="number" class="prix-unitaire" value="15" min="0" step="0.01" /></td>
-            <td><input type="number" class="quantite" value="2" min="1" step="1" /></td>
-            <td><input type="number" class="largeur" value="120" min="0" step="0.01" /></td>
-            <td><input type="number" class="hauteur" value="100" min="0" step="0.01" /></td>
-            <td><input type="number" class="surface" value="1.20" readonly /></td>
-            <td><input type="number" class="total-ligne" value="36.00" readonly /></td>
-            <td><button class="btn-suppr">Supprimer</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <button id="btn-ajouter">Ajouter une ligne</button>
-
-    <div class="total-section">
-      <span id="total-general">36.00</span> dh (HT)
-      <span id="tva-montant">7.20</span> dh (TVA)
-      <span id="total-ttc">43.20</span> dh (TTC)
-    </div>
-
-    <div class="btn-container">
-      <button id="btn-generate-pdf">Générer PDF</button>
-      <button id="btn-nouvelle-facture" style="background:#f44336; color:white;">Nouvelle facture</button>
+      <div class="btn-container">
+        <button id="btn-generate-pdf">Générer PDF</button>
+        <button id="btn-nouvelle-facture" style="background:#f44336; color:white;">Nouvelle facture</button>
+      </div>
     </div>
 
   </div>
@@ -307,6 +363,34 @@
 
   <script>
     const { jsPDF } = window.jspdf;
+
+    const users = {
+      "user1": "password1",
+      "user2": "password2",
+      "user3": "password3"
+    };
+
+    const loginForm = document.querySelector('.login-form');
+    const formulaireDevis = document.getElementById('formulaire-devis');
+    const loginError = document.getElementById('login-error');
+    const btnLogin = document.getElementById('btn-login');
+    const userIdInput = document.getElementById('user-id');
+    const passwordInput = document.getElementById('password');
+
+    function verifyLogin() {
+      const userId = userIdInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (users[userId] && users[userId] === password) {
+        loginForm.style.display = 'none';
+        formulaireDevis.style.display = 'block';
+        loginError.style.display = 'none';
+      } else {
+        loginError.style.display = 'block';
+      }
+    }
+
+    btnLogin.addEventListener('click', verifyLogin);
 
     const selectType = document.getElementById('type-document');
     const titrePage = document.getElementById('titre-page');
