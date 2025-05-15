@@ -247,7 +247,252 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
   <script>
-    // Le reste de ton code JavaScript reste identique, pas de changement ici.
+    const { jsPDF } = window.jspdf;
+
+    const selectType = document.getElementById('type-document');
+    const titrePage = document.getElementById('titre-page');
+    const tbodyLignes = document.getElementById('tbody-lignes');
+    const totalGeneralSpan = document.getElementById('total-general');
+    const tvaInput = document.getElementById('tva');
+    const tvaMontantSpan = document.getElementById('tva-montant');
+    const totalTTCSpan = document.getElementById('total-ttc');
+    const logoUpload = document.getElementById('logo-upload');
+    const logoPreview = document.getElementById('logo-preview');
+
+    let logoDataURL = null;
+
+    selectType.addEventListener('change', () => {
+      titrePage.textContent = selectType.value === 'devis' ? "Formulaire Devis" : "Formulaire Facture";
+    });
+
+    function calculerSurface(largeur, hauteur) {
+      return (largeur * hauteur) / 10000;
+    }
+
+    function calculerTotalLigne(surface, prixUnitaire, quantite) {
+      return surface * prixUnitaire * quantite;
+    }
+
+    function mettreAJourLigne(ligne) {
+      const largeur = parseFloat(ligne.querySelector('.largeur').value) || 0;
+      const hauteur = parseFloat(ligne.querySelector('.hauteur').value) || 0;
+      const prixUnitaire = parseFloat(ligne.querySelector('.prix-unitaire').value) || 0;
+      const quantite = parseInt(ligne.querySelector('.quantite').value) || 0;
+
+      const surface = calculerSurface(largeur, hauteur);
+      ligne.querySelector('.surface').value = surface.toFixed(4);
+
+      const total = calculerTotalLigne(surface, prixUnitaire, quantite);
+      ligne.querySelector('.total-ligne').value = total.toFixed(2);
+    }
+
+    function mettreAJourTotalGeneral() {
+      let totalGeneral = 0;
+      document.querySelectorAll('.ligne-article').forEach(ligne => {
+        const totalLigne = parseFloat(ligne.querySelector('.total-ligne').value) || 0;
+        totalGeneral += totalLigne;
+      });
+      totalGeneralSpan.textContent = totalGeneral.toFixed(2);
+
+      const tvaPourcent = parseFloat(tvaInput.value) || 0;
+      const tvaMontant = totalGeneral * (tvaPourcent / 100);
+      tvaMontantSpan.textContent = tvaMontant.toFixed(2);
+
+      const totalTTC = totalGeneral + tvaMontant;
+      totalTTCSpan.textContent = totalTTC.toFixed(2);
+    }
+
+    function miseAJourComplete() {
+      document.querySelectorAll('.ligne-article').forEach(ligne => {
+        mettreAJourLigne(ligne);
+      });
+      mettreAJourTotalGeneral();
+    }
+
+    function ajouterLigne() {
+      const nouvelleLigne = document.createElement('tr');
+      nouvelleLigne.classList.add('ligne-article');
+      nouvelleLigne.innerHTML = `
+        <td><input type="text" class="designation" value="" /></td>
+        <td><input type="number" class="prix-unitaire" value="0" min="0" step="0.01" /></td>
+        <td><input type="number" class="quantite" value="1" min="1" step="1" /></td>
+        <td><input type="number" class="largeur" value="0" min="0" step="0.01" /></td>
+        <td><input type="number" class="hauteur" value="0" min="0" step="0.01" /></td>
+        <td><input type="number" class="surface" value="0.0000" readonly /></td>
+        <td><input type="number" class="total-ligne" value="0.00" readonly /></td>
+        <td><button class="btn-suppr">Supprimer</button></td>
+      `;
+      tbodyLignes.appendChild(nouvelleLigne);
+    }
+
+    function supprimerLigne(button) {
+      const ligne = button.closest('tr');
+      ligne.remove();
+      miseAJourComplete();
+    }
+
+    // Gestion upload logo
+    logoUpload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          logoDataURL = evt.target.result;
+          logoPreview.src = logoDataURL;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        logoPreview.src = "";
+        logoDataURL = null;
+      }
+    });
+
+    document.getElementById('btn-ajouter').addEventListener('click', () => {
+      ajouterLigne();
+    });
+
+    tbodyLignes.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-suppr')) {
+        supprimerLigne(e.target);
+      }
+    });
+
+    tbodyLignes.addEventListener('input', (e) => {
+      const target = e.target;
+      if (['prix-unitaire', 'quantite', 'largeur', 'hauteur'].some(c => target.classList.contains(c))) {
+        const ligne = target.closest('tr');
+        mettreAJourLigne(ligne);
+        mettreAJourTotalGeneral();
+      }
+    });
+
+    tvaInput.addEventListener('input', () => {
+      mettreAJourTotalGeneral();
+    });
+
+    // Bouton Nouvelle Facture (reset form)
+    document.getElementById('btn-nouvelle-facture').addEventListener('click', () => {
+      // Reset champs
+      selectType.value = "devis";
+      titrePage.textContent = "Formulaire Devis";
+      document.getElementById('invoice-number').value = "";
+      document.getElementById('date-document').value = "";
+      document.getElementById('info-client').value = "";
+      document.getElementById('info-vendeur').value = "";
+      tvaInput.value = 20;
+      logoUpload.value = "";
+      logoPreview.src = "";
+      logoDataURL = null;
+
+      // Supprimer toutes les lignes sauf 1
+      tbodyLignes.innerHTML = "";
+      ajouterLigne();
+
+      miseAJourComplete();
+    });
+
+    document.getElementById('btn-generate-pdf').addEventListener('click', () => {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
+      const invoiceNum = document.getElementById('invoice-number').value || "SansNum";
+      const dateDoc = document.getElementById('date-document').value || "SansDate";
+      const infoClient = document.getElementById('info-client').value || "";
+      const infoVendeur = document.getElementById('info-vendeur').value || "";
+      const tvaPourcent = parseFloat(tvaInput.value) || 0;
+      const totalHT = parseFloat(totalGeneralSpan.textContent) || 0;
+      const tvaMontant = totalHT * (tvaPourcent / 100);
+      const totalTTC = totalHT + tvaMontant;
+
+      let yPos = 20;
+
+      // Logo si présent
+      if (logoDataURL) {
+        // Limiter taille logo
+        const imgProps = doc.getImageProperties(logoDataURL);
+        const maxWidth = 50;
+        const maxHeight = 30;
+        let imgWidth = imgProps.width;
+        let imgHeight = imgProps.height;
+
+        // Ajuster les dimensions tout en gardant ratio
+        if (imgWidth > maxWidth) {
+          const ratio = maxWidth / imgWidth;
+          imgWidth = maxWidth;
+          imgHeight = imgHeight * ratio;
+        }
+        if (imgHeight > maxHeight) {
+          const ratio = maxHeight / imgHeight;
+          imgHeight = maxHeight;
+          imgWidth = imgWidth * ratio;
+        }
+
+        doc.addImage(logoDataURL, 'PNG', 14, yPos, imgWidth, imgHeight);
+        yPos += imgHeight + 5;
+      }
+
+      // Titre centré
+      doc.setFontSize(30);
+      const text = typeDoc.toUpperCase();
+      const textWidth = doc.getTextWidth(text);
+      const x = (pageWidth - textWidth) / 2;
+      doc.text(text, x, yPos);
+      yPos += 15;
+
+      doc.setFontSize(12);
+      doc.text(`Numéro : ${invoiceNum}`, 14, yPos);
+      yPos += 8;
+      doc.text(`Date : ${dateDoc}`, 14, yPos);
+      yPos += 10;
+
+      doc.text("Informations Vendeur :", 14, yPos);
+      yPos += 6;
+      doc.setFontSize(10);
+      doc.text(infoVendeur.split("\n"), 14, yPos);
+      yPos += (infoVendeur.split("\n").length * 6) + 4;
+
+      doc.setFontSize(12);
+      doc.text("Informations Client :", 14, yPos);
+      yPos += 6;
+      doc.setFontSize(10);
+      doc.text(infoClient.split("\n"), 14, yPos);
+      yPos += (infoClient.split("\n").length * 6) + 6;
+
+      // Préparer les données pour autoTable
+      const rows = [];
+      document.querySelectorAll('.ligne-article').forEach(ligne => {
+        const des = ligne.querySelector('.designation').value || "";
+        const pu = ligne.querySelector('.prix-unitaire').value || "0";
+        const qt = ligne.querySelector('.quantite').value || "0";
+        const larg = ligne.querySelector('.largeur').value || "0";
+        const haut = ligne.querySelector('.hauteur').value || "0";
+        const surf = ligne.querySelector('.surface').value || "0";
+        const total = ligne.querySelector('.total-ligne').value || "0";
+
+        rows.push([des, pu + " dh", qt, larg, haut, surf, total + " dh"]);
+      });
+
+      doc.autoTable({
+        startY: yPos,
+        head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
+        body: rows,
+        theme: 'grid',
+      });
+
+      const finalY = doc.lastAutoTable.finalY || yPos;
+
+      // Totaux HT, TVA, TTC
+      doc.setFontSize(12);
+      doc.text(`Total HT : ${totalHT.toFixed(2)} dh`, 14, finalY + 10);
+      doc.text(`TVA (${tvaPourcent.toFixed(2)}%) : ${tvaMontant.toFixed(2)} dh`, 14, finalY + 18);
+      doc.text(`Total TTC : ${totalTTC.toFixed(2)} dh`, 14, finalY + 26);
+
+      doc.save(`${typeDoc}_${invoiceNum}.pdf`);
+    });
+
+    // Initialisation
+    miseAJourComplete();
   </script>
 
 </body>
