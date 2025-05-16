@@ -29,67 +29,83 @@
     }
 
     /* Formulaire de connexion */
-.login-form {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  margin: 20px auto;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);  /* Ajout de l'ombre */
-}
+    .login-form {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);  /* Ajout de l'ombre */
+    }
 
-.login-form label {
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 8px;
-  display: block;
-}
+    .login-form label {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+    }
 
-.login-form input[type="text"], .login-form input[type="password"] {
-  width: 100%;
-  padding: 12px 15px;  /* Unification du padding */
-  margin-bottom: 20px;  /* Espacement supplémentaire entre les champs */
-  border-radius: 6px;  /* Bords arrondis */
-  border: 1px solid #ccc;
-  font-size: 1.1em;  /* Taille de police plus grande */
-  transition: border 0.3s ease, box-shadow 0.3s ease;  /* Transition fluide lors du focus */
-  box-sizing: border-box;  /* Garantir que padding ne dépasse pas la largeur */
-}
+    .login-form input[type="text"], .login-form input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;  /* Unification du padding */
+      margin-bottom: 20px;  /* Espacement supplémentaire entre les champs */
+      border-radius: 6px;  /* Bords arrondis */
+      border: 1px solid #ccc;
+      font-size: 1.1em;  /* Taille de police plus grande */
+      transition: border 0.3s ease, box-shadow 0.3s ease;  /* Transition fluide lors du focus */
+      box-sizing: border-box;  /* Garantir que padding ne dépasse pas la largeur */
+    }
 
-.login-form input[type="text"]:focus, .login-form input[type="password"]:focus {
-  border-color: #2980b9;  /* Mise en surbrillance de la bordure lors du focus */
-  box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);  /* Ajout d'une lueur subtile autour du champ */
-  outline: none;  /* Retrait du contour par défaut */
-}
+    .login-form input[type="text"]:focus, .login-form input[type="password"]:focus {
+      border-color: #2980b9;  /* Mise en surbrillance de la bordure lors du focus */
+      box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);  /* Ajout d'une lueur subtile autour du champ */
+      outline: none;  /* Retrait du contour par défaut */
+    }
 
-.login-form button {
-  background-color: #2980b9;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;  /* Bordure arrondie pour le bouton */
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  font-size: 1.1em;
-}
+    .login-form button {
+      background-color: #2980b9;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;  /* Bordure arrondie pour le bouton */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      font-size: 1.1em;
+    }
 
-.login-form button:hover {
-  background-color: #3498db;
-}
+    .login-form button:hover {
+      background-color: #3498db;
+    }
 
-/* Message d'erreur */
-#login-error {
-  color: #e74c3c;  /* Rouge pour l'erreur */
-  font-weight: bold;
-  display: none;
-  text-align: center;
-  margin-top: 15px;
-  font-size: 1em;
-}
+    /* Section Note */
+    .note-section {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+    }
 
+    .note-section label {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .note-section textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      font-size: 1em;
+      height: 100px;
+    }
 
     /* Sélecteurs pour les labels et inputs */
     label {
@@ -333,6 +349,11 @@
         <textarea id="info-vendeur" placeholder="Nom société, adresse, téléphone..."></textarea>
       </div>
 
+      <div class="note-section">
+        <label for="note">Note :</label>
+        <textarea id="note" placeholder="Entrez une note ou remarque ici..."></textarea>
+      </div>
+
       <div class="table-wrapper">
         <table id="table-lignes">
           <thead>
@@ -384,6 +405,7 @@
   <script>
     const { jsPDF } = window.jspdf;
 
+    // Users and login verification
     const users = {
       "demo": "3388",
       "user2": "password2",
@@ -421,6 +443,7 @@
     const totalTTCSpan = document.getElementById('total-ttc');
     const logoUpload = document.getElementById('logo-upload');
     const logoPreview = document.getElementById('logo-preview');
+    const noteInput = document.getElementById('note'); // Capturer la note
 
     let logoDataURL = null;
 
@@ -555,104 +578,114 @@
     });
 
     document.getElementById('btn-generate-pdf').addEventListener('click', () => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-      const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
-      const invoiceNum = document.getElementById('invoice-number').value || "SansNum";
-      const dateDoc = document.getElementById('date-document').value || "SansDate";
-      const infoClient = document.getElementById('info-client').value || "";
-      const infoVendeur = document.getElementById('info-vendeur').value || "";
-      const tvaPourcent = parseFloat(tvaInput.value) || 0;
-      const totalHT = parseFloat(totalGeneralSpan.textContent) || 0;
-      const tvaMontant = totalHT * (tvaPourcent / 100);
-      const totalTTC = totalHT + tvaMontant;
+  const typeDoc = selectType.value === 'devis' ? "Devis" : "Facture";
+  const invoiceNum = document.getElementById('invoice-number').value || "SansNum";
+  const dateDoc = document.getElementById('date-document').value || "SansDate";
+  const infoClient = document.getElementById('info-client').value || "";
+  const infoVendeur = document.getElementById('info-vendeur').value || "";
+  const tvaPourcent = parseFloat(tvaInput.value) || 0;
+  const totalHT = parseFloat(totalGeneralSpan.textContent) || 0;
+  const tvaMontant = totalHT * (tvaPourcent / 100);
+  const totalTTC = totalHT + tvaMontant;
 
-      let yPos = 20;
+  let yPos = 20;
 
-      // Logo si présent
-      if (logoDataURL) {
-        // Limiter taille logo
-        const imgProps = doc.getImageProperties(logoDataURL);
-        const maxWidth = 50;
-        const maxHeight = 30;
-        let imgWidth = imgProps.width;
-        let imgHeight = imgProps.height;
+  // Logo si présent
+  if (logoDataURL) {
+    const imgProps = doc.getImageProperties(logoDataURL);
+    const maxWidth = 50;
+    const maxHeight = 30;
+    let imgWidth = imgProps.width;
+    let imgHeight = imgProps.height;
 
-        // Ajuster les dimensions tout en gardant ratio
-        if (imgWidth > maxWidth) {
-          const ratio = maxWidth / imgWidth;
-          imgWidth = maxWidth;
-          imgHeight = imgHeight * ratio;
-        }
-        if (imgHeight > maxHeight) {
-          const ratio = maxHeight / imgHeight;
-          imgHeight = maxHeight;
-          imgWidth = imgWidth * ratio;
-        }
+    if (imgWidth > maxWidth) {
+      const ratio = maxWidth / imgWidth;
+      imgWidth = maxWidth;
+      imgHeight = imgHeight * ratio;
+    }
+    if (imgHeight > maxHeight) {
+      const ratio = maxHeight / imgHeight;
+      imgHeight = maxHeight;
+      imgWidth = imgWidth * ratio;
+    }
 
-        doc.addImage(logoDataURL, 'PNG', 14, yPos, imgWidth, imgHeight);
-        yPos += imgHeight + 5;
-      }
+    doc.addImage(logoDataURL, 'PNG', 14, yPos, imgWidth, imgHeight);
+    yPos += imgHeight + 5;
+  }
 
-      // Titre centré
-      doc.setFontSize(30);
-      const text = typeDoc.toUpperCase();
-      const textWidth = doc.getTextWidth(text);
-      const x = (pageWidth - textWidth) / 2;
-      doc.text(text, x, yPos);
-      yPos += 15;
+  // Titre centré
+  doc.setFontSize(30);
+  const text = typeDoc.toUpperCase();
+  const textWidth = doc.getTextWidth(text);
+  const x = (pageWidth - textWidth) / 2;
+  doc.text(text, x, yPos);
+  yPos += 15;
 
-      doc.setFontSize(12);
-      doc.text(`Numéro : ${invoiceNum}`, 14, yPos);
-      yPos += 8;
-      doc.text(`Date : ${dateDoc}`, 14, yPos);
-      yPos += 10;
+  doc.setFontSize(12);
+  doc.text(`Numéro : ${invoiceNum}`, 14, yPos);
+  yPos += 8;
+  doc.text(`Date : ${dateDoc}`, 14, yPos);
+  yPos += 10;
 
-      doc.text("Informations Vendeur :", 14, yPos);
-      yPos += 6;
-      doc.setFontSize(10);
-      doc.text(infoVendeur.split("\n"), 14, yPos);
-      yPos += (infoVendeur.split("\n").length * 6) + 4;
+  doc.text("Informations Vendeur :", 14, yPos);
+  yPos += 6;
+  doc.setFontSize(10);
+  doc.text(infoVendeur.split("\n"), 14, yPos);
+  yPos += (infoVendeur.split("\n").length * 6) + 4;
 
-      doc.setFontSize(12);
-      doc.text("Informations Client :", 14, yPos);
-      yPos += 6;
-      doc.setFontSize(10);
-      doc.text(infoClient.split("\n"), 14, yPos);
-      yPos += (infoClient.split("\n").length * 6) + 6;
+  doc.setFontSize(12);
+  doc.text("Informations Client :", 14, yPos);
+  yPos += 6;
+  doc.setFontSize(10);
+  doc.text(infoClient.split("\n"), 14, yPos);
+  yPos += (infoClient.split("\n").length * 6) + 6;
 
-      // Préparer les données pour autoTable
-      const rows = [];
-      document.querySelectorAll('.ligne-article').forEach(ligne => {
-        const des = ligne.querySelector('.designation').value || "";
-        const pu = ligne.querySelector('.prix-unitaire').value || "0";
-        const qt = ligne.querySelector('.quantite').value || "0";
-        const larg = ligne.querySelector('.largeur').value || "0";
-        const haut = ligne.querySelector('.hauteur').value || "0";
-        const surf = ligne.querySelector('.surface').value || "0";
-        const total = ligne.querySelector('.total-ligne').value || "0";
+  // Préparer les données pour autoTable
+  const rows = [];
+  document.querySelectorAll('.ligne-article').forEach(ligne => {
+    const des = ligne.querySelector('.designation').value || "";
+    const pu = ligne.querySelector('.prix-unitaire').value || "0";
+    const qt = ligne.querySelector('.quantite').value || "0";
+    const larg = ligne.querySelector('.largeur').value || "0";
+    const haut = ligne.querySelector('.hauteur').value || "0";
+    const surf = ligne.querySelector('.surface').value || "0";
+    const total = ligne.querySelector('.total-ligne').value || "0";
 
-        rows.push([des, pu + " dh", qt, larg, haut, surf, total + " dh"]);
-      });
+    rows.push([des, pu + " dh", qt, larg, haut, surf, total + " dh"]);
+  });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
-        body: rows,
-        theme: 'grid',
-      });
+  doc.autoTable({
+    startY: yPos,
+    head: [['Désignation', 'PU (dh)', 'Qté', 'Larg (cm)', 'Haut (cm)', 'Surface (m²)', 'Total (dh)']],
+    body: rows,
+    theme: 'grid',
+  });
 
-      const finalY = doc.lastAutoTable.finalY || yPos;
+  const finalY = doc.lastAutoTable.finalY || yPos;
 
-      // Totaux HT, TVA, TTC
-      doc.setFontSize(12);
-      doc.text(`Total HT : ${totalHT.toFixed(2)} dh`, 14, finalY + 10);
-      doc.text(`TVA (${tvaPourcent.toFixed(2)}%) : ${tvaMontant.toFixed(2)} dh`, 14, finalY + 18);
-      doc.text(`Total TTC : ${totalTTC.toFixed(2)} dh`, 14, finalY + 26);
+  // Totaux HT, TVA, TTC
+  doc.setFontSize(12);
+  doc.text(`Total HT : ${totalHT.toFixed(2)} dh`, 14, finalY + 10);
+  doc.text(`TVA (${tvaPourcent.toFixed(2)}%) : ${tvaMontant.toFixed(2)} dh`, 14, finalY + 18);
+  doc.text(`Total TTC : ${totalTTC.toFixed(2)} dh`, 14, finalY + 26);
 
-      doc.save(`${typeDoc}_${invoiceNum}.pdf`);
-    });
+  // Ajouter la note au PDF en bas après la table
+  const note = document.getElementById('note').value || "";
+  if (note) {
+    yPos = finalY + 50; // Positionner la note en bas de la table
+    doc.setFontSize(12);
+    doc.text("Note :", 14, yPos);
+    yPos += 6;
+    doc.setFontSize(10);
+    doc.text(note.split("\n"), 14, yPos);
+  }
+
+  doc.save(`${typeDoc}_${invoiceNum}.pdf`);
+});
+
 
     // Initialisation
     miseAJourComplete();
